@@ -7,6 +7,7 @@ import com.fashionify.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
@@ -36,24 +37,27 @@ public class AuthController {
         // 4. Return appropriate response (e.g. logged in user).
     	User user=authService.login(request);
     	session.setAttribute("userId", user.getId());
-   	
 		session.setAttribute("role", user.getRole().name());
         return user;
     }
 
+   
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        // TODO:
-        // Invalidate the HTTP session (session.invalidate()).
-        return null;
+        authService.logout(session);
+        return "Logged out successfully";
     }
+ 
 
     @GetMapping("/me")
     public User me(HttpSession session) {
-        // TODO:
-        // 1. Read user ID from session.
-        // 2. If no user is logged in, handle that later.
-        // 3. Find and return current logged-in user.
-        return null;
+        // 1. Read user ID from session
+        Long userId = (Long) session.getAttribute("userId");
+        // 2. Return null if no user is logged in
+        if (userId == null) {
+            return null;
+        }
+        // 3. Find and return current logged-in user
+        return authService.getUserById(userId);
     }
 }
