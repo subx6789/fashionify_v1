@@ -6,6 +6,8 @@ import com.fashionify.entity.User;
 import com.fashionify.entity.enums.Role;
 import com.fashionify.repository.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -42,12 +44,29 @@ public class AuthService {
     }
 
     public User login(LoginRequest request) {
-        // TODO:
+       
         // 1. Find user by email using userRepository.findByEmail(request.getEmail()).
         // 2. Verify password using BCrypt (e.g.,
         // passwordEncoder.matches(request.getPassword(), user.getPassword())).
         // 3. Return user if credentials are valid.
         // 4. Handle invalid credentials later (e.g., throw exception or return null).
-        return null;
+    	try {
+    		
+    	
+    	 User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->new RuntimeException("User not found"));
+    	 
+    	 if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
+    		     
+    		    throw new RuntimeException("Invalid password");
+    		}
+    	 return user;
+    	 
+    	} catch (Exception e) {
+            // 4. Handle invalid credentials or errors
+            throw new RuntimeException("Login failed: " + e.getMessage(), e);
+        }
+    
+    	 
+    	
     }
 }
