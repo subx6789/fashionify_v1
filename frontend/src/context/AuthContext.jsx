@@ -7,15 +7,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 1. Check current session status on initial load
   const checkAuth = async () => {
     setLoading(true);
     try {
-      // TODO:
-      // Call GET /api/auth/me
-      // If successful: setUser(response.data)
-      // If it fails: setUser(null)
       const res = await api.get('/auth/me');
-      setUser(res.data);
+      setUser(res.data || null);
     } catch (err) {
       setUser(null);
     } finally {
@@ -27,24 +24,26 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  // 2. Login function
   const login = async (email, password) => {
-    // TODO:
-    // 1. Call POST /api/auth/login with { email, password }.
-    // 2. Backend will create session.
-    // 3. Save returned user object in state using setUser(res.data).
-    // 4. Return res.data for navigation logic.
+    const res = await api.post('/auth/login', { email, password });
+    setUser(res.data);
+    return res.data;
   };
 
+  // 3. Register function
   const register = async (name, email, password) => {
-    // TODO:
-    // 1. Call POST /api/auth/register with { name, email, password }.
-    // 2. After successful registration, redirect to login page.
+    const res = await api.post('/auth/register', { name, email, password });
+    return res.data;
   };
 
+  // 4. Logout function
   const logout = async () => {
-    // TODO:
-    // 1. Call POST /api/auth/logout.
-    // 2. Clear user state using setUser(null).
+    try {
+      await api.post('/auth/logout');
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

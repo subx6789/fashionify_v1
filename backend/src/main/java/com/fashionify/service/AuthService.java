@@ -44,28 +44,22 @@ public class AuthService {
 	}
 
 	public User login(LoginRequest request) {
-
-		// 1. Find user by email using userRepository.findByEmail(request.getEmail()).
-		// 2. Verify password using BCrypt (e.g.,
-		// passwordEncoder.matches(request.getPassword(), user.getPassword())).
-		// 3. Return user if credentials are valid.
-		// 4. Handle invalid credentials later (e.g., throw exception or return null).
 		try {
-
+			// 1. Find user by email using userRepository.findByEmail(request.getEmail())
 			User user = userRepository.findByEmail(request.getEmail())
-					.orElseThrow(() -> new RuntimeException("User not found"));
+					.orElseThrow(() -> new RuntimeException("Invalid email or password."));
 
+			// 2. Verify password using jBCrypt
 			if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
-
-				throw new RuntimeException("Invalid password");
+				throw new RuntimeException("Invalid email or password.");
 			}
-			return user;
 
+			// 3. Return user if credentials are valid
+			return user;
 		} catch (Exception e) {
 			// 4. Handle invalid credentials or errors
 			throw new RuntimeException("Login failed: " + e.getMessage(), e);
 		}
-
 	}
 
 	public void logout(HttpSession session) {

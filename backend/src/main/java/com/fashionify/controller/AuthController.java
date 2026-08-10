@@ -7,10 +7,9 @@ import com.fashionify.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:3000" }, allowCredentials = "true")
 public class AuthController {
 
     private final AuthService authService;
@@ -21,33 +20,30 @@ public class AuthController {
 
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
-    	
-    	
-        // TODO:
-        // Call AuthService.register(request) and return an appropriate response.
+        // Call AuthService.register(request) and return the registered user
         return authService.register(request);
     }
 
     @PostMapping("/login")
     public User login(@RequestBody LoginRequest request, HttpSession session) {
-        // TODO:
-        // 1. Call AuthService.login(request).
-        // 2. Store user ID in session ("userId").
-        // 3. Store role in session ("role").
-        // 4. Return appropriate response (e.g. logged in user).
-    	User user=authService.login(request);
-    	session.setAttribute("userId", user.getId());
-		session.setAttribute("role", user.getRole().name());
+        // 1. Call AuthService.login(request)
+        User user = authService.login(request);
+
+        // 2. Store user ID in session ("userId")
+        session.setAttribute("userId", user.getId());
+
+        // 3. Store role in session ("role")
+        session.setAttribute("role", user.getRole().name());
+
+        // 4. Return logged in user
         return user;
     }
 
-   
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         authService.logout(session);
         return "Logged out successfully";
     }
- 
 
     @GetMapping("/me")
     public User me(HttpSession session) {
