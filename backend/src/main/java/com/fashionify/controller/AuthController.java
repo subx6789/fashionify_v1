@@ -20,9 +20,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
+    	
+    	
         // TODO:
         // Call AuthService.register(request) and return an appropriate response.
-        return null;
+        return authService.register(request);
     }
 
     @PostMapping("/login")
@@ -32,7 +34,11 @@ public class AuthController {
         // 2. Store user ID in session ("userId").
         // 3. Store role in session ("role").
         // 4. Return appropriate response (e.g. logged in user).
-        return null;
+    	User user=authService.login(request);
+    	session.setAttribute("userId", user.getId());
+   	
+		session.setAttribute("role", user.getRole().name());
+        return user;
     }
 
     @PostMapping("/logout")
