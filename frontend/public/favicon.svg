@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <!-- High Contrast Outer Container with subtle border radius -->
+  <rect x="4" y="4" width="120" height="120" rx="16" fill="#111111" stroke="#ffffff" stroke-width="6"/>
+
+  <!-- High Visibility Bold White F -->
+  <text 
+    x="50%" 
+    y="54%" 
+    dominant-baseline="central" 
+    text-anchor="middle" 
+    font-family="'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif" 
+    font-weight="900" 
+    font-size="88" 
+    fill="#ffffff"
+    letter-spacing="-2"
+  >F</text>
+</svg>

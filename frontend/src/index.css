@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', sans-serif;
+    --font-heading: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #111111;
+    font-family: var(--font-inter);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: #111111;
+  }
+
+  a, button, [role="button"] {
+    cursor: pointer !important;
+  }
+}
