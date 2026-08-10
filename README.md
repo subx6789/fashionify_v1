@@ -2,13 +2,16 @@
 
 Fashionify is a simple, beginner-friendly full-stack fashion e-commerce MVP built with **Spring Boot** on the backend and **React.js** on the frontend. The project demonstrates a clean e-commerce flow with two roles (**USER** and **ADMIN**) while keeping the code readable, structured, and easy to maintain.
 
+> [!IMPORTANT]
+> **Fashionify uses basic Spring Boot HttpSession-based session authentication, not JWT or Spring Security.**
+
 ---
 
 ## 🛠 Tech Stack
 
 ### Backend
 * **Language:** Java 21
-* **Framework:** Spring Boot 4.1.0 (Spring Web, Spring Data JPA, Bean Validation)
+* **Framework:** Spring Boot (Spring Web, Spring Data JPA, Bean Validation)
 * **Database:** MySQL 8.0
 * **Authentication & Hashing:** Spring `HttpSession`, BCrypt
 * **Build Tool:** Maven
@@ -17,16 +20,41 @@ Fashionify is a simple, beginner-friendly full-stack fashion e-commerce MVP buil
 * **Library & Bundler:** React.js (v19) + Vite
 * **Routing:** React Router DOM (v7)
 * **HTTP Client:** Axios (`withCredentials: true`)
-* **State Management:** React Context API
+* **State Management:** React Context API (`AuthContext`, `CartContext`)
 * **Styling & UI:** Tailwind CSS (v4), shadcn/ui components, Lucide React icons
+
+---
+
+## 🔒 Authentication Architecture
+
+```
+React
+  ↓
+Axios
+  ↓
+Spring Boot REST API
+  ↓
+HttpSession
+  ↓
+MySQL
+```
+
+* **Session-Based Authentication:** Fashionify uses standard Spring Boot `HttpSession`. After successful login, the backend stores session attributes (`"userId"` and `"role"`) in the HTTP session. The session is used to identify the currently logged-in user and enforce authorization.
+* **Cookie-Based Credentials:** The frontend Axios instance configures `withCredentials: true` so that the browser automatically sends the HTTP session cookie (`JSESSIONID`) with every cross-origin API request.
+* **No Tokens:** The frontend does **NOT** store a JWT. There is **NO** JWT in `localStorage`, and there is **NO** `Authorization: Bearer` header.
+* **Password Hashing:** Passwords are intended to be hashed using BCrypt. BCrypt is strictly used for password hashing—it is **NOT** an authentication or session mechanism.
+* **Frontend State Management:** React uses `AuthContext` to maintain the currently logged-in user in React state. On application startup or refresh, the frontend calls `GET /api/auth/me` (which checks `"userId"` in `HttpSession`). If the session is valid, the user object is stored in `AuthContext`; if there is no valid session, user state is set to `null`.
+
+> [!NOTE]
+> **Security Disclaimer:** Because this is a beginner-friendly academic MVP, the project intentionally avoids Spring Security and JWT. This is not production-grade authentication. A future production version could use a more robust security architecture, but no such system currently exists in this implementation.
 
 ---
 
 ## 🌟 Features
 
 ### User Features
-* **Authentication:** Account registration, login, logout, and session check (`/api/auth/me`).
-* **Catalog Browsing:** Browse latest collections on Home page and view detailed product information.
+* **Authentication:** Account registration, login, logout, and session validation (`/api/auth/me`).
+* **Catalog Browsing:** Browse latest collections on the Home page and view detailed product information.
 * **Shopping Cart:** Add products, update quantities, remove items, and clear cart (persisted via `localStorage`).
 * **Checkout & Orders:** Submit delivery address and phone number to place orders, view order history (`My Orders`), and track status.
 
@@ -62,36 +90,14 @@ Fashionify/
 │   │   ├── components/              # Shared UI & Layout (Navbar, ProductCard, ProtectedRoute, AdminLayout)
 │   │   ├── components/ui/           # Reusable shadcn/ui components (Button, Card, Input, Table, etc.)
 │   │   ├── context/                 # AuthContext & CartContext
-│   │   ├── pages/                   # User pages (Home, Login, Register, ProductDetails, Cart, Checkout, MyOrders)
+   │   ├── pages/                   # User pages (Home, Login, Register, ProductDetails, Cart, Checkout, MyOrders)
 │   │   │   └── admin/               # Admin pages (AdminDashboard, AdminProducts, AdminOrders)
 │   │   └── services/
-│   │       └── api.js               # Axios instance configuration
+│   │       └── api.js               # Axios instance configuration (withCredentials: true)
 │   └── package.json
 │
 └── README.md
 ```
-
----
-
-## 🏗 Architecture & Flow
-
-### General Flow
-```
-React Frontend (Vite)
-       ↓ (Axios requests with credentials)
-Spring Boot REST Controllers
-       ↓
-  Service Layer
-       ↓
- Spring Data JPA Repository
-       ↓
-   MySQL Database
-```
-
-### Authentication Flow
-* **Session-Based:** Uses standard Spring `HttpSession` (no JWT).
-* **Credentials:** Axios passes `withCredentials: true` with every request to send the `JSESSIONID` cookie automatically.
-* **Security:** User passwords are hashed using BCrypt before database persistence.
 
 ---
 
@@ -111,21 +117,33 @@ Spring Boot REST Controllers
 
 ## 🔌 API Endpoints
 
-| Category | Method | Endpoint | Description |
+### Authentication Endpoints (`/api/auth`)
+
+| Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| **Auth** | `POST` | `/api/auth/register` | Register a new user |
-| **Auth** | `POST` | `/api/auth/login` | Log in user & initialize session |
-| **Auth** | `POST` | `/api/auth/logout` | Invalidate current session |
-| **Auth** | `GET` | `/api/auth/me` | Retrieve currently authenticated user |
-| **Product** | `GET` | `/api/products` | Retrieve all products |
-| **Product** | `GET` | `/api/products/{id}` | Retrieve single product details |
-| **Product** | `POST` | `/api/products` | Create a new product (ADMIN) |
-| **Product** | `PUT` | `/api/products/{id}` | Update product details (ADMIN) |
-| **Product** | `DELETE` | `/api/products/{id}` | Delete product (ADMIN) |
-| **Order** | `POST` | `/api/orders` | Create order & calculate total amount |
-| **Order** | `GET` | `/api/orders/my` | Retrieve logged-in user's orders |
-| **Order** | `GET` | `/api/orders` | Retrieve all orders (ADMIN) |
-| **Order** | `PUT` | `/api/orders/{id}/status` | Update order status (ADMIN) |
+| `POST` | `/api/auth/register` | Public | Registers a new user. The backend assigns the `USER` role during registration. |
+| `POST` | `/api/auth/login` | Public | Authenticates credentials, creates/uses the `HttpSession`, and stores user info in the session. |
+| `POST` | `/api/auth/logout` | Authenticated | Invalidates the current `HttpSession`. |
+| `GET` | `/api/auth/me` | Authenticated | Checks the current `HttpSession` and returns the logged-in user (used by React `AuthContext` on startup). |
+
+### Product Endpoints (`/api/products`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/products` | Public | Retrieve all products in catalog |
+| `GET` | `/api/products/{id}` | Public | Retrieve single product details |
+| `POST` | `/api/products` | Admin | Create a new product |
+| `PUT` | `/api/products/{id}` | Admin | Update product details |
+| `DELETE` | `/api/products/{id}` | Admin | Delete product from catalog |
+
+### Order Endpoints (`/api/orders`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/orders` | Customer | Create new order & calculate total amount |
+| `GET` | `/api/orders/my` | Customer | Retrieve current user's orders |
+| `GET` | `/api/orders` | Admin | Retrieve all customer orders |
+| `PUT` | `/api/orders/{id}/status` | Admin | Update order status (`PLACED`, `SHIPPED`, `DELIVERED`, `CANCELLED`) |
 
 ---
 
@@ -207,8 +225,8 @@ An `ADMIN` user must be created/seeded according to the current backend setup or
 
 Fashionify was built as an educational full-stack project to practice:
 * Building RESTful APIs with Spring Boot and Spring Data JPA.
-* Implementing session-based authentication in full-stack applications.
-* Managing client-side state with React Context API and `localStorage`.
+* Implementing basic `HttpSession`-based session authentication in full-stack applications.
+* Managing client-side state with React Context API (`AuthContext`, `CartContext`) and `localStorage`.
 * Designing responsive UIs with Tailwind CSS and shadcn/ui.
 * End-to-end integration between React and Spring Boot.
 
