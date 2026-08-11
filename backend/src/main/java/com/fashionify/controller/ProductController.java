@@ -6,12 +6,11 @@ import com.fashionify.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = { "http://localhost:5173", "http://localhost:3000" }, allowCredentials = "true")
 public class ProductController {
 
     private final ProductService productService;
@@ -20,50 +19,35 @@ public class ProductController {
         this.productService = productService;
     }
 
+    // Get all products
     @GetMapping
     public List<ProductResponse> getAllProducts() {
-        // TODO:
-        // Call ProductService.getAllProducts().
-    	
-        List<ProductResponse> productList = productService.getAllProducts();
-
-        return productList;
+        return productService.getAllProducts();
     }
 
+    // Get single product by ID
     @GetMapping("/{id}")
     public ProductResponse getProductById(@PathVariable Long id) {
-        // TODO:
-        // Call ProductService.getProductById(id).
-         return productService.getProductById(id);
+        return productService.getProductById(id);
     }
 
+    // Add product
     @PostMapping
     public ProductResponse addProduct(@RequestBody ProductRequest request, HttpSession session) {
-        // TODO:
-        // 1. Later verify that logged-in user has ADMIN role.
-        // 2. Call ProductService.addProduct(request).
-        // 3. Return created product.
         return productService.addProduct(request);
     }
 
+    // Update product
     @PutMapping("/{id}")
-    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody ProductRequest request, HttpSession session) {
-        // TODO:
-        // 1. Later verify ADMIN role from session.
-        // 2. Call ProductService.updateProduct(id, request).
-        // 3. Return updated product.
-    	 return productService.updateProduct(id, request);
+    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody ProductRequest request,
+            HttpSession session) {
+        return productService.updateProduct(id, request);
     }
 
+    // Delete product
     @DeleteMapping("/{id}")
     public String deleteProduct(@PathVariable Long id, HttpSession session) {
-        // TODO:
-        // 1. Later verify ADMIN role from session.
-        // 2. Call ProductService.deleteProduct(id).
-        // 3. Return appropriate response.
-    	
-    	 productService.deleteProduct(id);
-    	 return "product deleted";
-    	   
+        productService.deleteProduct(id);
+        return "Product deleted successfully";
     }
 }
