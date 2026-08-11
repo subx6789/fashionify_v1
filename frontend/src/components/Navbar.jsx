@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,18 @@ const Navbar = () => {
 
   const isAdmin = user?.role === 'ADMIN';
 
+  const linkClass = ({ isActive }) =>
+    `text-[14px] tracking-wide transition-colors ${
+      isActive
+        ? 'font-bold text-[#111111] border-b-2 border-[#111111] pb-0.5'
+        : 'font-medium text-neutral-600 hover:text-[#111111]'
+    }`;
+
+  const mobileLinkClass = ({ isActive }) =>
+    `text-[14px] uppercase tracking-wider ${
+      isActive ? 'font-black text-[#111111]' : 'font-semibold text-neutral-500'
+    }`;
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-neutral-100 bg-white/95 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -38,20 +50,29 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
+          <NavLink to="/" className={linkClass} end>
+            HOME
+          </NavLink>
+          <NavLink to="/about" className={linkClass}>
+            ABOUT
+          </NavLink>
+          <NavLink to="/contact" className={linkClass}>
+            CONTACT US
+          </NavLink>
           {user && (
-            <Link to="/my-orders" className="text-[14px] font-medium tracking-wide text-[#111111] transition-colors hover:text-neutral-500">
+            <NavLink to="/my-orders" className={linkClass}>
               MY ORDERS
-            </Link>
+            </NavLink>
           )}
 
           {isAdmin && (
             <>
-              <Link to="/admin/products" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#111111] hover:text-neutral-500">
+              <NavLink to="/admin/products" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#111111] hover:text-neutral-500">
                 <Package className="h-4 w-4" /> ADMIN PRODUCTS
-              </Link>
-              <Link to="/admin/orders" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#111111] hover:text-neutral-500">
+              </NavLink>
+              <NavLink to="/admin/orders" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#111111] hover:text-neutral-500">
                 <Layers className="h-4 w-4" /> ADMIN ORDERS
-              </Link>
+              </NavLink>
             </>
           )}
         </nav>
@@ -113,31 +134,53 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="border-b border-neutral-200 bg-white px-6 pb-6 pt-4 md:hidden">
           <div className="flex flex-col space-y-4">
+            <NavLink
+              to="/"
+              end
+              onClick={() => setMobileMenuOpen(false)}
+              className={mobileLinkClass}
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/about"
+              onClick={() => setMobileMenuOpen(false)}
+              className={mobileLinkClass}
+            >
+              About
+            </NavLink>
+            <NavLink
+              to="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className={mobileLinkClass}
+            >
+              Contact Us
+            </NavLink>
             {user && (
-              <Link
+              <NavLink
                 to="/my-orders"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-[14px] font-bold uppercase tracking-wider text-[#111111]"
+                className={mobileLinkClass}
               >
                 My Orders
-              </Link>
+              </NavLink>
             )}
             {isAdmin && (
               <>
-                <Link
+                <NavLink
                   to="/admin/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-[14px] font-bold uppercase tracking-wider text-[#111111]"
+                  className={mobileLinkClass}
                 >
                   Admin Products
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/admin/orders"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-[14px] font-bold uppercase tracking-wider text-[#111111]"
+                  className={mobileLinkClass}
                 >
                   Admin Orders
-                </Link>
+                </NavLink>
               </>
             )}
 
