@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const ProtectedRoute = ({ children, adminOnly }) => {
+const ProtectedRoute = ({ children, adminOnly, requireUser }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -16,12 +16,22 @@ const ProtectedRoute = ({ children, adminOnly }) => {
     );
   }
 
+  // Handle unauthenticated guests
   if (!user) {
-    return <Navigate to="/login" replace />;
+    if (adminOnly || requireUser) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
   }
 
+  // If page is for Admins only, non-admins go to home page
   if (adminOnly && user.role !== 'ADMIN') {
     return <Navigate to="/" replace />;
+  }
+
+  // If user is Admin and tries to access customer store pages, redirect to Admin Dashboard
+  if (!adminOnly && user.role === 'ADMIN') {
+    return <Navigate to="/admin" replace />;
   }
 
   return children;

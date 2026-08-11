@@ -17,12 +17,10 @@ const MyOrders = () => {
       setLoading(true);
       setError('');
       try {
-        // TODO: Call GET /api/orders/my
         const res = await api.get('/orders/my');
         setOrders(res.data || []);
       } catch (err) {
-        // TODO: Handle error
-        setError('Failed to load orders');
+        setError('Failed to load orders',err);
       } finally {
         setLoading(false);
       }

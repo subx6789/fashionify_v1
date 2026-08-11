@@ -20,20 +20,14 @@ const Login = () => {
     setError('');
 
     try {
-      // TODO:
-      // 1. Call AuthContext.login(email, password)
-      // 2. Read returned user or response
-      // 3. If role === 'ADMIN', navigate to /admin/products
-      // 4. Otherwise, navigate to /
       const user = await login(email, password);
       if (user?.role === 'ADMIN') {
-        navigate('/admin/products');
+        navigate('/admin');
       } else {
         navigate('/');
       }
     } catch (err) {
-      // TODO: Handle error
-      setError('Invalid email or password');
+      setError('Invalid email or password',err);
     } finally {
       setLoading(false);
     }

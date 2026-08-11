@@ -21,14 +21,10 @@ const Register = () => {
     setError('');
 
     try {
-      // TODO:
-      // 1. Call AuthContext.register(name, email, password)
-      // 2. Navigate to /login on success
       await register(name, email, password);
       navigate('/login');
     } catch (err) {
-      // TODO: Handle error
-      setError('Registration failed. Please try again.');
+      setError('Registration failed. Please try again.',err);
     } finally {
       setLoading(false);
     }
