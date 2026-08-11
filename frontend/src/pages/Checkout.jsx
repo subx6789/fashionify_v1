@@ -36,16 +36,11 @@ const Checkout = () => {
     };
 
     try {
-      // TODO:
-      // 1. Call POST /api/orders with orderRequest
-      // 2. On success clear cart via clearCart()
-      // 3. Navigate to /my-orders
       await api.post('/orders', orderRequest);
       clearCart();
       navigate('/my-orders');
     } catch (err) {
-      // TODO: Handle error
-      setError('Failed to place order. Please try again.');
+      setError('Failed to place order. Please try again.',err);
     } finally {
       setLoading(false);
     }

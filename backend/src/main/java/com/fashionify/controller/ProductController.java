@@ -5,6 +5,8 @@ import com.fashionify.dto.response.ProductResponse;
 import com.fashionify.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,14 +24,17 @@ public class ProductController {
     public List<ProductResponse> getAllProducts() {
         // TODO:
         // Call ProductService.getAllProducts().
-        return null;
+    	
+        List<ProductResponse> productList = productService.getAllProducts();
+
+        return productList;
     }
 
     @GetMapping("/{id}")
     public ProductResponse getProductById(@PathVariable Long id) {
         // TODO:
         // Call ProductService.getProductById(id).
-        return null;
+         return productService.getProductById(id);
     }
 
     @PostMapping
@@ -38,7 +43,7 @@ public class ProductController {
         // 1. Later verify that logged-in user has ADMIN role.
         // 2. Call ProductService.addProduct(request).
         // 3. Return created product.
-        return null;
+        return productService.addProduct(request);
     }
 
     @PutMapping("/{id}")
@@ -47,7 +52,7 @@ public class ProductController {
         // 1. Later verify ADMIN role from session.
         // 2. Call ProductService.updateProduct(id, request).
         // 3. Return updated product.
-        return null;
+    	 return productService.updateProduct(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -56,6 +61,9 @@ public class ProductController {
         // 1. Later verify ADMIN role from session.
         // 2. Call ProductService.deleteProduct(id).
         // 3. Return appropriate response.
-        return null;
+    	
+    	 productService.deleteProduct(id);
+    	 return "product deleted";
+    	   
     }
 }

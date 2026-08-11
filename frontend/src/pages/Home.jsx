@@ -15,12 +15,10 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Call GET /api/products
         const res = await api.get('/products');
         setProducts(res.data || []);
       } catch (err) {
-        // TODO: Handle error state
-        setError('Failed to load products');
+        setError('Failed to load products',err);
       } finally {
         setLoading(false);
       }

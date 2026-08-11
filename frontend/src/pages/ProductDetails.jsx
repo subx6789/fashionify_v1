@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '../context/CartContext';
-import { ArrowLeft, ShoppingBag, Check } from 'lucide-react';
+import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import api from '../services/api';
 
 const ProductDetails = () => {
@@ -19,12 +19,10 @@ const ProductDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        // TODO: Call GET /api/products/{id}
         const res = await api.get(`/products/${id}`);
         setProduct(res.data);
       } catch (err) {
-        // TODO: Handle error
-        setError('Failed to fetch product details.');
+        setError('Failed to fetch product details.',err);
       } finally {
         setLoading(false);
       }
@@ -34,7 +32,6 @@ const ProductDetails = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    // TODO: Add to cart
     if (product) {
       addToCart(product);
     }

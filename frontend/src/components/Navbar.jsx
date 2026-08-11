@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,13 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { cartItemCount } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Do not render main Navbar on Admin pages
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const handleLogout = async () => {
     // TODO: Call logout from AuthContext and navigate to /login

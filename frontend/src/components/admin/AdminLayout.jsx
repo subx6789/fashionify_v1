@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -72,15 +72,6 @@ const AdminLayout = ({ children }) => {
 
       {/* Footer / User info */}
       <div className="space-y-4 pt-6 border-t border-neutral-200">
-        <Link
-          to="/"
-          onClick={() => setMobileMenuOpen(false)}
-          className="flex items-center gap-2.5 text-[13px] font-semibold text-[#707070] hover:text-[#111111] transition-colors"
-        >
-          <Store className="h-4 w-4 stroke-[1.75]" />
-          <span>Back to Store</span>
-        </Link>
-
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0 border border-neutral-200">

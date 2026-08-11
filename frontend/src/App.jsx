@@ -17,17 +17,31 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+        {/* Public Store Routes (Users / Guests only) */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route
+          path="/product/:id"
+          element={
+            <ProtectedRoute>
+              <ProductDetails />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* User Routes */}
+        {/* User Routes (Requires logged in USER) */}
         <Route
           path="/cart"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireUser={true}>
               <Cart />
             </ProtectedRoute>
           }
@@ -35,7 +49,7 @@ function App() {
         <Route
           path="/checkout"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireUser={true}>
               <Checkout />
             </ProtectedRoute>
           }
@@ -43,7 +57,7 @@ function App() {
         <Route
           path="/my-orders"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireUser={true}>
               <MyOrders />
             </ProtectedRoute>
           }
