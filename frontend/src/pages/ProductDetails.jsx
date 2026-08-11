@@ -101,7 +101,7 @@ const ProductDetails = () => {
 
             <div className="mt-3 flex items-center gap-4">
               <span className="text-[20px] sm:text-[24px] font-bold text-[#111111]">
-                ${product.price != null ? product.price.toFixed(2) : '0.00'}
+                ₹{product.price != null ? product.price.toFixed(2) : '0.00'}
               </span>
               {isOutOfStock ? (
                 <Badge variant="destructive">OUT OF STOCK</Badge>

@@ -61,7 +61,7 @@ const ProductCard = ({ product }) => {
 
         <div className="mt-2 flex items-center justify-between">
           <span className="text-[14px] sm:text-[15px] font-semibold text-[#111111]">
-            ${product?.price != null ? product.price.toFixed(2) : '0.00'}
+            ₹{product?.price != null ? product.price.toFixed(2) : '0.00'}
           </span>
           <button
             disabled={isOutOfStock}

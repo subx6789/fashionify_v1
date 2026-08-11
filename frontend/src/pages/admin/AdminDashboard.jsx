@@ -200,7 +200,7 @@ const AdminDashboard = () => {
                         {order.user?.name || order.user?.email || 'Customer'}
                       </TableCell>
                       <TableCell className="text-xs font-bold">
-                        ${order.totalAmount != null ? order.totalAmount.toFixed(2) : '0.00'}
+                        ₹{order.totalAmount != null ? order.totalAmount.toFixed(2) : '0.00'}
                       </TableCell>
                       <TableCell>{getStatusBadge(order.status)}</TableCell>
                     </TableRow>

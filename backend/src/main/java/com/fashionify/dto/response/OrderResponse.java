@@ -7,6 +7,8 @@ public class OrderResponse {
 
     private Long id;
     private Long userId;
+    private String userName;
+    private String userEmail;
     private String address;
     private String phone;
     private Double totalAmount;
@@ -17,9 +19,11 @@ public class OrderResponse {
     public OrderResponse() {
     }
 
-    public OrderResponse(Long id, Long userId, String address, String phone, Double totalAmount, OrderStatus status, String createdAt, List<OrderItemResponse> items) {
+    public OrderResponse(Long id, Long userId, String userName, String userEmail, String address, String phone, Double totalAmount, OrderStatus status, String createdAt, List<OrderItemResponse> items) {
         this.id = id;
         this.userId = userId;
+        this.userName = userName;
+        this.userEmail = userEmail;
         this.address = address;
         this.phone = phone;
         this.totalAmount = totalAmount;
@@ -42,6 +46,22 @@ public class OrderResponse {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getAddress() {

@@ -170,6 +170,8 @@ public class OrderService {
 
         if (order.getUser() != null) {
             response.setUserId(order.getUser().getId());
+            response.setUserName(order.getUser().getName());
+            response.setUserEmail(order.getUser().getEmail());
         }
 
         response.setAddress(order.getAddress());

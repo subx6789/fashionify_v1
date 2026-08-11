@@ -101,7 +101,7 @@ const MyOrders = () => {
               <div className="text-right">
                 <span className="text-xs text-neutral-500 block">Total Amount</span>
                 <span className="text-lg font-bold text-neutral-900">
-                  ${order.totalAmount != null ? order.totalAmount.toFixed(2) : '0.00'}
+                  ₹{order.totalAmount != null ? order.totalAmount.toFixed(2) : '0.00'}
                 </span>
               </div>
             </CardHeader>
@@ -124,19 +124,19 @@ const MyOrders = () => {
                   <div key={item.id} className="py-3 flex items-center justify-between text-sm">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded bg-neutral-100 overflow-hidden shrink-0">
-                        {item.product?.imageUrl ? (
-                          <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
+                        {item.productImageUrl ? (
+                          <img src={item.productImageUrl} alt={item.productName} className="h-full w-full object-cover" />
                         ) : (
                           <div className="flex h-full items-center justify-center text-[10px] text-neutral-400">No img</div>
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-neutral-900">{item.product?.name || 'Product'}</p>
-                        <p className="text-xs text-neutral-500">Qty: {item.quantity} × ${item.price?.toFixed(2)}</p>
+                        <p className="font-medium text-neutral-900">{item.productName || `Product #${item.productId}`}</p>
+                        <p className="text-xs text-neutral-500">Qty: {item.quantity} × ₹{item.price?.toFixed(2)}</p>
                       </div>
                     </div>
                     <span className="font-semibold text-neutral-900">
-                      ${((item.price || 0) * (item.quantity || 1)).toFixed(2)}
+                      ₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}
                     </span>
                   </div>
                 ))}

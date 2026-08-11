@@ -69,56 +69,105 @@ const AdminOrders = () => {
           <p className="text-sm text-[#707070] mt-1">Manage customer orders.</p>
         </div>
 
-        <div className="rounded-none border border-neutral-200 bg-white overflow-hidden shadow-none">
+        <div className="rounded-md border border-neutral-200 bg-white overflow-hidden shadow-sm">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created Date</TableHead>
-                <TableHead className="text-right">Update Status</TableHead>
+            <TableHeader className="bg-neutral-50/80">
+              <TableRow className="border-b border-neutral-200">
+                <TableHead className="w-20 font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5">Order ID</TableHead>
+                <TableHead className="font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5">Customer & Shipping</TableHead>
+                <TableHead className="font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5">Items Ordered</TableHead>
+                <TableHead className="font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5">Total</TableHead>
+                <TableHead className="font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5">Status</TableHead>
+                <TableHead className="font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5">Date</TableHead>
+                <TableHead className="font-bold text-xs text-[#111111] uppercase tracking-wider py-3.5 text-right">Update Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-[#707070]">
+                  <TableCell colSpan={7} className="text-center py-12 text-[#707070]">
                     Loading orders...
                   </TableCell>
                 </TableRow>
               ) : orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-[#707070]">
+                  <TableCell colSpan={7} className="text-center py-12 text-[#707070]">
                     No customer orders found.
                   </TableCell>
                 </TableRow>
               ) : (
                 orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-semibold text-xs sm:text-sm">#{order.id}</TableCell>
-                    <TableCell className="text-xs sm:text-sm">
-                      <div className="flex items-center gap-1.5">
-                        <UserIcon className="h-4 w-4 text-neutral-400" />
-                        <span>{order.user?.name || order.user?.email || 'Customer'}</span>
+                  <TableRow key={order.id} className="hover:bg-neutral-50/50 transition-colors border-b border-neutral-100 last:border-0">
+                    <TableCell className="font-bold text-xs sm:text-sm text-neutral-900 align-top py-4">
+                      #{order.id}
+                    </TableCell>
+                    <TableCell className="text-xs sm:text-sm min-w-48 align-top py-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 font-bold text-neutral-900">
+                          <UserIcon className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
+                          <span>{order.userName || order.userEmail || `User #${order.userId}`}</span>
+                        </div>
+                        {order.userEmail && (
+                          <p className="text-[11px] text-neutral-500">{order.userEmail}</p>
+                        )}
+                        {order.phone && (
+                          <p className="text-[11px] text-neutral-600 font-medium pt-0.5">📞 {order.phone}</p>
+                        )}
+                        {order.address && (
+                          <p className="text-[11px] text-neutral-500 leading-snug pt-0.5" title={order.address}>
+                            📍 {order.address}
+                          </p>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell className="font-bold text-xs sm:text-sm">
-                      ${order.totalAmount != null ? order.totalAmount.toFixed(2) : '0.00'}
+                    <TableCell className="text-xs min-w-56 align-top py-4">
+                      <div className="space-y-2">
+                        {order.items && order.items.length > 0 ? (
+                          order.items.map((item) => (
+                            <div key={item.id} className="flex items-center gap-2.5 bg-neutral-50/70 p-1.5 rounded-md border border-neutral-100">
+                              {item.productImageUrl ? (
+                                <img
+                                  src={item.productImageUrl}
+                                  alt={item.productName}
+                                  className="h-10 w-10 object-cover rounded-md bg-neutral-200 shrink-0 border border-neutral-200"
+                                />
+                              ) : (
+                                <div className="h-10 w-10 rounded-md bg-neutral-100 border border-neutral-200 flex items-center justify-center text-[9px] text-neutral-400 shrink-0">
+                                  No Img
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-neutral-900 text-[12px] truncate" title={item.productName}>
+                                  {item.productName || `Product #${item.productId}`}
+                                </p>
+                                <p className="text-[11px] text-neutral-500">
+                                  Qty: {item.quantity} × <span className="font-semibold text-neutral-700">₹{item.price?.toFixed(2)}</span>
+                                </p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-neutral-400 italic">No item details</span>
+                        )}
+                      </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(order.status)}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-black text-sm sm:text-base text-neutral-900 align-top py-4">
+                      ₹{order.totalAmount != null ? order.totalAmount.toFixed(2) : '0.00'}
+                    </TableCell>
+                    <TableCell className="align-top py-4">
+                      {getStatusBadge(order.status)}
+                    </TableCell>
+                    <TableCell className="align-top py-4">
                       <div className="flex items-center gap-1 text-xs text-[#707070]">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
+                        <Calendar className="h-3.5 w-3.5 shrink-0" />
+                        <span>{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right align-top py-4">
                       <Select
                         value={order.status || 'PLACED'}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        className="w-35 ml-auto text-xs"
+                        className="w-36 ml-auto text-xs font-semibold"
                       >
                         <option value="PLACED">PLACED</option>
                         <option value="SHIPPED">SHIPPED</option>

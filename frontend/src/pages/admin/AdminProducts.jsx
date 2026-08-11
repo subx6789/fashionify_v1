@@ -163,7 +163,7 @@ const AdminProducts = () => {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium text-xs sm:text-sm">{product.name}</TableCell>
-                    <TableCell className="text-xs sm:text-sm font-semibold">${product.price?.toFixed(2)}</TableCell>
+                    <TableCell className="text-xs sm:text-sm font-semibold">₹{product.price?.toFixed(2)}</TableCell>
                     <TableCell className="text-xs sm:text-sm">{product.stock}</TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => handleOpenEditDialog(product)}>
@@ -198,6 +198,16 @@ const AdminProducts = () => {
 
           <form onSubmit={handleSaveProduct} className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="imageUrl">Cover Image Link</Label>
+              <Input
+                id="imageUrl"
+                type="url"
+                placeholder="https://images.unsplash.com/..."
+                value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="name">Product Name</Label>
               <Input
                 id="name"
@@ -208,15 +218,17 @@ const AdminProducts = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Input
+              <textarea
                 id="description"
+                rows={3}
+                className="w-full rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-950 disabled:cursor-not-allowed disabled:opacity-50"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">Price (₹)</Label>
                 <Input
                   id="price"
                   type="number"
@@ -236,16 +248,6 @@ const AdminProducts = () => {
                   required
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                type="url"
-                placeholder="https://images.unsplash.com/..."
-                value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              />
             </div>
 
             <DialogFooter>

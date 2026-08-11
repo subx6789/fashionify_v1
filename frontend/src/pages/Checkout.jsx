@@ -110,7 +110,7 @@ const Checkout = () => {
                         <span className="text-neutral-500 ml-2">x{item.quantity}</span>
                       </div>
                       <span className="font-semibold text-neutral-900">
-                        ${((item.product?.price || 0) * item.quantity).toFixed(2)}
+                        ₹{((item.product?.price || 0) * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   ))}
@@ -121,7 +121,7 @@ const Checkout = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between font-bold text-base text-neutral-900">
                     <span>Total Amount</span>
-                    <span>${cartTotal.toFixed(2)}</span>
+                    <span>₹{cartTotal.toFixed(2)}</span>
                   </div>
                   <p className="text-xs text-neutral-500">Total amount will be verified and calculated by the backend.</p>
                 </div>

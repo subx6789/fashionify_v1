@@ -51,7 +51,7 @@ const Cart = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-neutral-900">{product.name || 'Product'}</h3>
-                      <p className="text-sm font-bold text-neutral-900 mt-1">${itemPrice.toFixed(2)}</p>
+                      <p className="text-sm font-bold text-neutral-900 mt-1">₹{itemPrice.toFixed(2)}</p>
                     </div>
                   </div>
 
@@ -74,7 +74,7 @@ const Cart = () => {
                     </div>
 
                     <span className="font-bold text-neutral-900 min-w-17.5 text-right">
-                      ${(itemPrice * quantity).toFixed(2)}
+                      ₹{(itemPrice * quantity).toFixed(2)}
                     </span>
 
                     <Button
@@ -99,7 +99,7 @@ const Cart = () => {
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between text-neutral-600">
                 <span>Subtotal</span>
-                <span className="font-semibold text-neutral-900">${cartTotal.toFixed(2)}</span>
+                <span className="font-semibold text-neutral-900">₹{cartTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-neutral-600">
                 <span>Shipping</span>
@@ -108,7 +108,7 @@ const Cart = () => {
               <Separator />
               <div className="flex justify-between text-base font-bold text-neutral-900 pt-2">
                 <span>Total</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>₹{cartTotal.toFixed(2)}</span>
               </div>
             </div>
 
