@@ -1,6 +1,7 @@
 package com.fashionify.service;
 
-import com.fashionify.dto.ProductRequest;
+import com.fashionify.dto.request.ProductRequest;
+import com.fashionify.dto.response.ProductResponse;
 import com.fashionify.entity.Product;
 import com.fashionify.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -15,21 +16,21 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
         // TODO:
         // 1. Fetch all products using productRepository.findAll().
         // 2. Return list of products.
         return null;
     }
 
-    public Product getProductById(Long id) {
+    public ProductResponse getProductById(Long id) {
         // TODO:
         // 1. Fetch product by ID using productRepository.findById(id).
         // 2. Return product if found, or handle not found case.
         return null;
     }
 
-    public Product addProduct(ProductRequest request) {
+    public ProductResponse addProduct(ProductRequest request) {
         // TODO:
         // 1. Create a new Product instance.
         // 2. Map fields from ProductRequest (name, description, price, imageUrl, stock).
@@ -38,7 +39,7 @@ public class ProductService {
         return null;
     }
 
-    public Product updateProduct(Long id, ProductRequest request) {
+    public ProductResponse updateProduct(Long id, ProductRequest request) {
         // TODO:
         // 1. Find existing product by ID.
         // 2. Update its fields with values from ProductRequest.
@@ -51,5 +52,17 @@ public class ProductService {
         // TODO:
         // 1. Check if product exists by ID.
         // 2. Delete product using productRepository.deleteById(id).
+    }
+
+    public ProductResponse mapToProductResponse(Product product) {
+        if (product == null) return null;
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getImageUrl(),
+                product.getStock()
+        );
     }
 }

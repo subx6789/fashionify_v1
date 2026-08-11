@@ -1,7 +1,8 @@
 package com.fashionify.service;
 
-import com.fashionify.dto.LoginRequest;
-import com.fashionify.dto.RegisterRequest;
+import com.fashionify.dto.request.LoginRequest;
+import com.fashionify.dto.request.RegisterRequest;
+import com.fashionify.dto.response.UserResponse;
 import com.fashionify.entity.User;
 import com.fashionify.entity.enums.Role;
 import com.fashionify.repository.UserRepository;
@@ -20,7 +21,7 @@ public class AuthService {
 		this.userRepository = userRepository;
 	}
 
-	public User register(RegisterRequest request) {
+	public UserResponse register(RegisterRequest request) {
 		try {
 			// 1. Check whether email already exists
 			if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -35,15 +36,16 @@ public class AuthService {
 			user.setPassword(encodedPassword);
 			// 4. Set role to Role.USER
 			user.setRole(Role.USER);
-			// 5. Save user using userRepository.save(user) & 6. Return saved user
-			return userRepository.save(user);
+			// 5. Save user using userRepository.save(user) & 6. Return saved user as UserResponse
+			User savedUser = userRepository.save(user);
+			return mapToUserResponse(savedUser);
 		} catch (Exception e) {
 			// Re-throw or handle exception appropriately
 			throw new RuntimeException("Registration failed: " + e.getMessage(), e);
 		}
 	}
 
-	public User login(LoginRequest request) {
+	public UserResponse login(LoginRequest request) {
 		try {
 			// 1. Find user by email using userRepository.findByEmail(request.getEmail())
 			User user = userRepository.findByEmail(request.getEmail())
@@ -54,8 +56,8 @@ public class AuthService {
 				throw new RuntimeException("Invalid email or password.");
 			}
 
-			// 3. Return user if credentials are valid
-			return user;
+			// 3. Return user response if credentials are valid
+			return mapToUserResponse(user);
 		} catch (Exception e) {
 			// 4. Handle invalid credentials or errors
 			throw new RuntimeException("Login failed: " + e.getMessage(), e);
@@ -68,8 +70,13 @@ public class AuthService {
 		}
 	}
 
-	public User getUserById(Long id) {
-		return userRepository.findById(id).orElse(null);
+	public UserResponse getUserById(Long id) {
+		User user = userRepository.findById(id).orElse(null);
+		return user != null ? mapToUserResponse(user) : null;
+	}
 
+	private UserResponse mapToUserResponse(User user) {
+		if (user == null) return null;
+		return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole());
 	}
 }

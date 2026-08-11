@@ -1,7 +1,7 @@
 package com.fashionify.controller;
 
-import com.fashionify.dto.ProductRequest;
-import com.fashionify.entity.Product;
+import com.fashionify.dto.request.ProductRequest;
+import com.fashionify.dto.response.ProductResponse;
 import com.fashionify.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +19,21 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
         // TODO:
         // Call ProductService.getAllProducts().
         return null;
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id) {
+    public ProductResponse getProductById(@PathVariable Long id) {
         // TODO:
         // Call ProductService.getProductById(id).
         return null;
     }
 
     @PostMapping
-    public Product addProduct(@RequestBody ProductRequest request, HttpSession session) {
+    public ProductResponse addProduct(@RequestBody ProductRequest request, HttpSession session) {
         // TODO:
         // 1. Later verify that logged-in user has ADMIN role.
         // 2. Call ProductService.addProduct(request).
@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody ProductRequest request, HttpSession session) {
+    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody ProductRequest request, HttpSession session) {
         // TODO:
         // 1. Later verify ADMIN role from session.
         // 2. Call ProductService.updateProduct(id, request).

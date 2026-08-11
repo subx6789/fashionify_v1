@@ -1,8 +1,8 @@
 package com.fashionify.controller;
 
-import com.fashionify.dto.LoginRequest;
-import com.fashionify.dto.RegisterRequest;
-import com.fashionify.entity.User;
+import com.fashionify.dto.request.LoginRequest;
+import com.fashionify.dto.request.RegisterRequest;
+import com.fashionify.dto.response.UserResponse;
 import com.fashionify.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
@@ -19,15 +19,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
+    public UserResponse register(@RequestBody RegisterRequest request) {
         // Call AuthService.register(request) and return the registered user
         return authService.register(request);
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody LoginRequest request, HttpSession session) {
+    public UserResponse login(@RequestBody LoginRequest request, HttpSession session) {
         // 1. Call AuthService.login(request)
-        User user = authService.login(request);
+        UserResponse user = authService.login(request);
 
         // 2. Store user ID in session ("userId")
         session.setAttribute("userId", user.getId());
@@ -46,7 +46,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public User me(HttpSession session) {
+    public UserResponse me(HttpSession session) {
         // 1. Read user ID from session
         Long userId = (Long) session.getAttribute("userId");
         // 2. Return null if no user is logged in

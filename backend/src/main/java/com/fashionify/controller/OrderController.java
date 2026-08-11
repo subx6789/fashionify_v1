@@ -1,10 +1,11 @@
 package com.fashionify.controller;
 
-import com.fashionify.dto.OrderRequest;
-import com.fashionify.entity.Order;
+import com.fashionify.dto.request.OrderRequest;
+import com.fashionify.dto.response.OrderResponse;
 import com.fashionify.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public Order createOrder(@RequestBody OrderRequest request, HttpSession session) {
+    public OrderResponse createOrder(@RequestBody OrderRequest request, HttpSession session) {
         // TODO:
         // 1. Read logged-in user ID from session.
         // 2. Pass user ID and request to OrderService.createOrder().
@@ -30,7 +31,7 @@ public class OrderController {
     }
 
     @GetMapping("/my")
-    public List<Order> getMyOrders(HttpSession session) {
+    public List<OrderResponse> getMyOrders(HttpSession session) {
         // TODO:
         // 1. Read logged-in user ID from session.
         // 2. Call OrderService.getMyOrders(userId).
@@ -39,7 +40,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<Order> getAllOrders(HttpSession session) {
+    public List<OrderResponse> getAllOrders(HttpSession session) {
         // TODO:
         // 1. Later verify ADMIN role from session.
         // 2. Call OrderService.getAllOrders().
@@ -48,7 +49,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/status")
-    public Order updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> body, HttpSession session) {
+    public OrderResponse updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> body, HttpSession session) {
         // TODO:
         // 1. Later verify ADMIN role from session.
         // 2. Read status string from request body.

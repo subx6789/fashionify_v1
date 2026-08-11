@@ -1,26 +1,16 @@
-package com.fashionify.dto;
+package com.fashionify.dto.request;
 
-public class RegisterRequest {
+public class LoginRequest {
 
-    private String name;
     private String email;
     private String password;
 
-    public RegisterRequest() {
+    public LoginRequest() {
     }
 
-    public RegisterRequest(String name, String email, String password) {
-        this.name = name;
+    public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {

@@ -1,6 +1,8 @@
 package com.fashionify.service;
 
-import com.fashionify.dto.OrderRequest;
+import com.fashionify.dto.request.OrderRequest;
+import com.fashionify.dto.response.OrderItemResponse;
+import com.fashionify.dto.response.OrderResponse;
 import com.fashionify.entity.Order;
 import com.fashionify.entity.enums.OrderStatus;
 import com.fashionify.repository.OrderItemRepository;
@@ -8,7 +10,9 @@ import com.fashionify.repository.OrderRepository;
 import com.fashionify.repository.ProductRepository;
 import com.fashionify.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -28,7 +32,7 @@ public class OrderService {
         this.productRepository = productRepository;
     }
 
-    public Order createOrder(Long userId, OrderRequest request) {
+    public OrderResponse createOrder(Long userId, OrderRequest request) {
         // TODO:
         // 1. Find the user by userId using userRepository.findById(userId).
         // 2. Create the Order object.
@@ -46,26 +50,53 @@ public class OrderService {
         return null;
     }
 
-    public List<Order> getMyOrders(Long userId) {
+    public List<OrderResponse> getMyOrders(Long userId) {
         // TODO:
         // 1. Fetch orders for specific user using orderRepository.findByUserId(userId).
         // 2. Return list of orders.
         return null;
     }
 
-    public List<Order> getAllOrders() {
+    public List<OrderResponse> getAllOrders() {
         // TODO:
         // 1. Fetch all orders using orderRepository.findAll().
         // 2. Return list of orders.
         return null;
     }
 
-    public Order updateOrderStatus(Long orderId, OrderStatus status) {
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
         // TODO:
         // 1. Find order by orderId using orderRepository.findById(orderId).
         // 2. Update order status to new status.
         // 3. Save updated order using orderRepository.save(order).
         // 4. Return updated order.
         return null;
+    }
+
+    public OrderResponse mapToOrderResponse(Order order) {
+        if (order == null) return null;
+
+        List<OrderItemResponse> itemResponses = null;
+        if (order.getItems() != null) {
+            itemResponses = order.getItems().stream().map(item -> new OrderItemResponse(
+                    item.getId(),
+                    item.getProduct() != null ? item.getProduct().getId() : null,
+                    item.getProduct() != null ? item.getProduct().getName() : null,
+                    item.getProduct() != null ? item.getProduct().getImageUrl() : null,
+                    item.getQuantity(),
+                    item.getPrice()
+            )).collect(Collectors.toList());
+        }
+
+        return new OrderResponse(
+                order.getId(),
+                order.getUser() != null ? order.getUser().getId() : null,
+                order.getAddress(),
+                order.getPhone(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                order.getCreatedAt() != null ? order.getCreatedAt().toString() : null,
+                itemResponses
+        );
     }
 }

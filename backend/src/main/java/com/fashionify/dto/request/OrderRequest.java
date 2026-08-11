@@ -1,4 +1,4 @@
-package com.fashionify.dto;
+package com.fashionify.dto.request;
 
 import java.util.List;
 
