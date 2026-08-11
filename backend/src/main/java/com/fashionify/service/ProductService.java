@@ -3,23 +3,34 @@ package com.fashionify.service;
 import com.fashionify.dto.request.ProductRequest;
 import com.fashionify.dto.response.ProductResponse;
 import com.fashionify.entity.Product;
+import com.fashionify.repository.CartItemRepository;
+import com.fashionify.repository.OrderItemRepository;
 import com.fashionify.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CartItemRepository cartItemRepository;
+    private final OrderItemRepository orderItemRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          CartItemRepository cartItemRepository,
+                          OrderItemRepository orderItemRepository) {
         this.productRepository = productRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     // 1. Get All Products (using a simple for-each loop)
+    @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
         try {
             List<Product> products = productRepository.findAll();
@@ -35,6 +46,7 @@ public class ProductService {
     }
 
     // 2. Get Product By ID (using simple Optional check)
+    @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
         try {
             Optional<Product> optionalProduct = productRepository.findById(id);
@@ -84,10 +96,12 @@ public class ProductService {
         }
     }
 
-    // 5. Delete Product
+    // 5. Delete Product (cascades to related cart items and order items to avoid Foreign Key constraint violations)
     public void deleteProduct(Long id) {
         try {
             if (productRepository.existsById(id)) {
+                cartItemRepository.deleteByProductId(id);
+                orderItemRepository.deleteByProductId(id);
                 productRepository.deleteById(id);
             }
         } catch (Exception e) {
@@ -106,6 +120,7 @@ public class ProductService {
         response.setPrice(product.getPrice());
         response.setImageUrl(product.getImageUrl());
         response.setStock(product.getStock());
+        response.setCreatedAt(product.getCreatedAt());
         return response;
     }
 }

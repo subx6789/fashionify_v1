@@ -1,5 +1,7 @@
 package com.fashionify.dto.response;
 
+import java.time.LocalDateTime;
+
 public class ProductResponse {
 
     private Long id;
@@ -8,6 +10,7 @@ public class ProductResponse {
     private Double price;
     private String imageUrl;
     private Integer stock;
+    private LocalDateTime createdAt;
 
     public ProductResponse() {
     }
@@ -19,6 +22,16 @@ public class ProductResponse {
         this.price = price;
         this.imageUrl = imageUrl;
         this.stock = stock;
+    }
+
+    public ProductResponse(Long id, String name, String description, Double price, String imageUrl, Integer stock, LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.stock = stock;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -67,5 +80,13 @@ public class ProductResponse {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

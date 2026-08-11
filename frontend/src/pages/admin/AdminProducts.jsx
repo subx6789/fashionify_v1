@@ -131,22 +131,23 @@ const AdminProducts = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-20">Image</TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>Product</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
+                <TableHead>Created At</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-[#707070]">
+                  <TableCell colSpan={6} className="text-center py-8 text-[#707070]">
                     Loading products...
                   </TableCell>
                 </TableRow>
               ) : products.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-[#707070]">
+                  <TableCell colSpan={6} className="text-center py-8 text-[#707070]">
                     No products found. Click "Add Product" to create one.
                   </TableCell>
                 </TableRow>
@@ -165,6 +166,15 @@ const AdminProducts = () => {
                     <TableCell className="font-medium text-xs sm:text-sm">{product.name}</TableCell>
                     <TableCell className="text-xs sm:text-sm font-semibold">₹{product.price?.toFixed(2)}</TableCell>
                     <TableCell className="text-xs sm:text-sm">{product.stock}</TableCell>
+                    <TableCell className="text-xs sm:text-sm text-neutral-500 font-mono">
+                      {product.createdAt
+                        ? new Date(product.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })
+                        : 'N/A'}
+                    </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => handleOpenEditDialog(product)}>
                         <Edit className="h-3.5 w-3.5" />
