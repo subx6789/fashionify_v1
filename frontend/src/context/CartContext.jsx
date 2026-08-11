@@ -20,32 +20,57 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart]);
 
-  const addToCart = (product) => {
-    // TODO:
-    // 1. Add product to cart in state structure: { product, quantity }.
-    // 2. If product already exists in cart, increase quantity.
-    // 3. Keep cart state updated.
+    const addToCart = (product) => {
+    let found = false;
+
+    const updatedCart = cart.map((item) => {
+      if (item.product.id === product.id) {
+        found = true;
+        return { ...item, quantity: item.quantity + 1 };
+      }
+      return item;
+    });
+
+    if (found) {
+      setCart(updatedCart);
+    } else {
+      setCart([...cart, { product: product, quantity: 1 }]);
+    }
   };
 
-  const removeFromCart = (productId) => {
-    // TODO:
-    // 1. Filter out product with productId from cart state.
+   const removeFromCart = (productId) => {
+    const updatedCart = cart.filter((item) => item.product.id !== productId);
+    setCart(updatedCart);
   };
+
 
   const increaseQuantity = (productId) => {
-    // TODO:
-    // 1. Find item in cart by productId and increment its quantity.
+    const updatedCart = cart.map((item) => {
+      if (item.product.id === productId) {
+        return { ...item, quantity: item.quantity + 1 };
+      }
+      return item;
+    });
+    setCart(updatedCart);
   };
 
-  const decreaseQuantity = (productId) => {
-    // TODO:
-    // 1. Find item in cart by productId and decrement its quantity.
-    // 2. If quantity reaches 0, remove item or keep minimum 1.
+
+   const decreaseQuantity = (productId) => {
+    const updatedCart = cart
+      .map((item) => {
+        if (item.product.id === productId) {
+          return { ...item, quantity: item.quantity - 1 };
+        }
+        return item;
+      })
+      .filter((item) => item.quantity > 0); // removes item if quantity becomes 0
+
+    setCart(updatedCart);
   };
+
 
   const clearCart = () => {
-    // TODO:
-    // 1. Reset cart state to an empty array [].
+  
     setCart([]);
   };
 
