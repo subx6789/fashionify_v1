@@ -29,21 +29,27 @@ const Home = () => {
 
   return (
     <div className="min-h-screen pb-20">
-      {/* Clean White Minimalist Hero Section */}
-      <section className="bg-white border-b border-neutral-100 py-16 sm:py-24 flex items-center justify-center">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-block text-[12px] font-bold tracking-[0.25em] uppercase text-[#707070] mb-3">
+      {/* Minimalist Hero Section with Clear Floral Wallpaper Background */}
+      <section 
+        className="relative border-b border-neutral-200 py-20 sm:py-28 flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
+        style={{ backgroundImage: "url('/hero_floral_bg.png')" }}
+      >
+        {/* Crisp, subtle white overlay for high clarity floral wallpaper while keeping text legible */}
+        <div className="absolute inset-0 bg-white/35 backdrop-blur-[3px]"></div>
+
+        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-block text-[12px] font-bold tracking-[0.25em] uppercase text-[#555555] mb-3 drop-shadow-sm">
             SPRING / SUMMER 2026
           </span>
-          <h1 className="text-[32px] sm:text-[48px] md:text-[56px] font-extrabold tracking-tight leading-[1.1] uppercase text-[#111111] font-['Plus_Jakarta_Sans']">
+          <h1 className="text-[32px] sm:text-[48px] md:text-[56px] font-extrabold tracking-tight leading-[1.1] uppercase text-[#111111] font-['Plus_Jakarta_Sans'] drop-shadow-sm">
             STYLE THAT MOVES WITH YOU.
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-[14px] sm:text-[16px] text-[#707070] font-normal leading-relaxed">
+          <p className="mx-auto mt-4 max-w-lg text-[14px] sm:text-[16px] text-[#333333] font-semibold leading-relaxed">
             Minimalist essentials refined for the modern wardrobe. Editorial tailoring meets everyday ease.
           </p>
           <div className="mt-8">
             <a href="#collection">
-              <Button size="lg" className="bg-[#111111] text-white hover:bg-neutral-800 gap-2 font-bold tracking-wider">
+              <Button size="lg" className="bg-[#111111] text-white hover:bg-neutral-800 gap-2 font-bold tracking-wider shadow-md">
                 EXPLORE COLLECTION <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
