@@ -7,7 +7,6 @@ import com.fashionify.entity.Cart;
 import com.fashionify.entity.CartItem;
 import com.fashionify.entity.Product;
 import com.fashionify.entity.User;
-import com.fashionify.repository.CartItemRepository;
 import com.fashionify.repository.CartRepository;
 import com.fashionify.repository.ProductRepository;
 import com.fashionify.repository.UserRepository;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,104 +26,186 @@ public class CartService {
     private final UserRepository userRepository;
 
     public CartService(CartRepository cartRepository,
-            CartItemRepository cartItemRepository,
-            ProductRepository productRepository,
-            UserRepository userRepository) {
+                       ProductRepository productRepository,
+                       UserRepository userRepository) {
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
     }
 
+    // 1. Get or create Cart entity for user
     public Cart getOrCreateCartEntity(Long userId) {
-        return cartRepository.findByUserId(userId).orElseGet(() -> {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-            Cart cart = new Cart(user);
+        try {
+            Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
+            if (optionalCart.isPresent()) {
+                return optionalCart.get();
+            }
+
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (!optionalUser.isPresent()) {
+                throw new RuntimeException("User not found with id: " + userId);
+            }
+
+            Cart cart = new Cart(optionalUser.get());
             return cartRepository.save(cart);
-        });
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get or create cart: " + e.getMessage(), e);
+        }
     }
 
+    // 2. Fetch user's cart
+    @Transactional(readOnly = true)
     public CartResponse getCart(Long userId) {
-        Cart cart = getOrCreateCartEntity(userId);
-        return mapToCartResponse(cart);
+        try {
+            Cart cart = getOrCreateCartEntity(userId);
+            return mapToCartResponse(cart);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch cart: " + e.getMessage(), e);
+        }
     }
 
+    // 3. Add item to cart
     public CartResponse addItem(Long userId, CartItemRequest request) {
-        if (request.getProductId() == null) {
-            throw new RuntimeException("Product ID is required");
-        }
-        int addQuantity = (request.getQuantity() != null && request.getQuantity() > 0) ? request.getQuantity() : 1;
+        try {
+            if (request.getProductId() == null) {
+                throw new RuntimeException("Product ID is required");
+            }
 
-        Cart cart = getOrCreateCartEntity(userId);
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + request.getProductId()));
+            int addQuantity = 1;
+            if (request.getQuantity() != null && request.getQuantity() > 0) {
+                addQuantity = request.getQuantity();
+            }
 
-        Optional<CartItem> existingItemOpt = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(product.getId()))
-                .findFirst();
+            Cart cart = getOrCreateCartEntity(userId);
 
-        if (existingItemOpt.isPresent()) {
-            CartItem existingItem = existingItemOpt.get();
-            existingItem.setQuantity(existingItem.getQuantity() + addQuantity);
-        } else {
-            CartItem newItem = new CartItem(cart, product, addQuantity);
-            cart.getItems().add(newItem);
-        }
+            Optional<Product> optionalProduct = productRepository.findById(request.getProductId());
+            if (!optionalProduct.isPresent()) {
+                throw new RuntimeException("Product not found with id: " + request.getProductId());
+            }
+            Product product = optionalProduct.get();
 
-        Cart savedCart = cartRepository.save(cart);
-        return mapToCartResponse(savedCart);
-    }
+            CartItem existingItem = null;
+            for (CartItem item : cart.getItems()) {
+                if (item.getProduct().getId().equals(product.getId())) {
+                    existingItem = item;
+                    break;
+                }
+            }
 
-    public CartResponse updateItemQuantity(Long userId, Long productId, CartItemRequest request) {
-        Cart cart = getOrCreateCartEntity(userId);
-        int newQuantity = (request != null && request.getQuantity() != null) ? request.getQuantity() : 0;
-
-        if (newQuantity <= 0) {
-            cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
-        } else {
-            Optional<CartItem> existingItemOpt = cart.getItems().stream()
-                    .filter(item -> item.getProduct().getId().equals(productId))
-                    .findFirst();
-
-            if (existingItemOpt.isPresent()) {
-                existingItemOpt.get().setQuantity(newQuantity);
+            if (existingItem != null) {
+                existingItem.setQuantity(existingItem.getQuantity() + addQuantity);
             } else {
-                Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
-                CartItem newItem = new CartItem(cart, product, newQuantity);
+                CartItem newItem = new CartItem(cart, product, addQuantity);
                 cart.getItems().add(newItem);
             }
+
+            Cart savedCart = cartRepository.save(cart);
+            return mapToCartResponse(savedCart);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add item to cart: " + e.getMessage(), e);
         }
-
-        Cart savedCart = cartRepository.save(cart);
-        return mapToCartResponse(savedCart);
     }
 
+    // 4. Update item quantity in cart
+    public CartResponse updateItemQuantity(Long userId, Long productId, CartItemRequest request) {
+        try {
+            Cart cart = getOrCreateCartEntity(userId);
+
+            int newQuantity = 0;
+            if (request != null && request.getQuantity() != null) {
+                newQuantity = request.getQuantity();
+            }
+
+            if (newQuantity <= 0) {
+                for (int i = 0; i < cart.getItems().size(); i++) {
+                    if (cart.getItems().get(i).getProduct().getId().equals(productId)) {
+                        cart.getItems().remove(i);
+                        break;
+                    }
+                }
+            } else {
+                CartItem existingItem = null;
+                for (CartItem item : cart.getItems()) {
+                    if (item.getProduct().getId().equals(productId)) {
+                        existingItem = item;
+                        break;
+                    }
+                }
+
+                if (existingItem != null) {
+                    existingItem.setQuantity(newQuantity);
+                } else {
+                    Optional<Product> optionalProduct = productRepository.findById(productId);
+                    if (!optionalProduct.isPresent()) {
+                        throw new RuntimeException("Product not found with id: " + productId);
+                    }
+                    CartItem newItem = new CartItem(cart, optionalProduct.get(), newQuantity);
+                    cart.getItems().add(newItem);
+                }
+            }
+
+            Cart savedCart = cartRepository.save(cart);
+            return mapToCartResponse(savedCart);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update cart item quantity: " + e.getMessage(), e);
+        }
+    }
+
+    // 5. Remove single item from cart
     public CartResponse removeItem(Long userId, Long productId) {
-        Cart cart = getOrCreateCartEntity(userId);
-        cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
-        Cart savedCart = cartRepository.save(cart);
-        return mapToCartResponse(savedCart);
+        try {
+            Cart cart = getOrCreateCartEntity(userId);
+
+            for (int i = 0; i < cart.getItems().size(); i++) {
+                if (cart.getItems().get(i).getProduct().getId().equals(productId)) {
+                    cart.getItems().remove(i);
+                    break;
+                }
+            }
+
+            Cart savedCart = cartRepository.save(cart);
+            return mapToCartResponse(savedCart);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to remove item from cart: " + e.getMessage(), e);
+        }
     }
 
+    // 6. Clear all items from cart
     public CartResponse clearCart(Long userId) {
-        Cart cart = getOrCreateCartEntity(userId);
-        cart.getItems().clear();
-        Cart savedCart = cartRepository.save(cart);
-        return mapToCartResponse(savedCart);
+        try {
+            Cart cart = getOrCreateCartEntity(userId);
+            cart.getItems().clear();
+            Cart savedCart = cartRepository.save(cart);
+            return mapToCartResponse(savedCart);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to clear cart: " + e.getMessage(), e);
+        }
     }
 
+    // 7. Helper method using try-catch to build DTO response
     private CartResponse mapToCartResponse(Cart cart) {
-        List<CartItemResponse> itemResponses = (cart.getItems() != null) ? cart.getItems().stream()
-                .map(item -> new CartItemResponse(item.getId(), item.getProduct(), item.getQuantity()))
-                .collect(Collectors.toList()) : new ArrayList<>();
+        try {
+            List<CartItemResponse> itemResponses = new ArrayList<>();
+            double totalAmount = 0.0;
 
-        double totalAmount = itemResponses.stream()
-                .mapToDouble(item -> (item.getProduct() != null && item.getProduct().getPrice() != null
-                        ? item.getProduct().getPrice()
-                        : 0.0) * item.getQuantity())
-                .sum();
+            if (cart.getItems() != null) {
+                for (CartItem item : cart.getItems()) {
+                    CartItemResponse itemResponse = new CartItemResponse(
+                            item.getId(),
+                            item.getProduct(),
+                            item.getQuantity()
+                    );
+                    itemResponses.add(itemResponse);
 
-        return new CartResponse(cart.getId(), cart.getUser().getId(), itemResponses, totalAmount);
+                    if (item.getProduct() != null && item.getProduct().getPrice() != null) {
+                        totalAmount += item.getProduct().getPrice() * item.getQuantity();
+                    }
+                }
+            }
+
+            return new CartResponse(cart.getId(), cart.getUser().getId(), itemResponses, totalAmount);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to map cart response: " + e.getMessage(), e);
+        }
     }
 }
