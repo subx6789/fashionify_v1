@@ -19,35 +19,46 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // Get all products
+    // Public: Anyone can view all products
     @GetMapping
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    // Get single product by ID
+    // Public: Anyone can view a product by ID
     @GetMapping("/{id}")
     public ProductResponse getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
-    // Add product
+    // Admin Only: Add new product
     @PostMapping
     public ProductResponse addProduct(@RequestBody ProductRequest request, HttpSession session) {
+        verifyAdmin(session);
         return productService.addProduct(request);
     }
 
-    // Update product
+    // Admin Only: Update product
     @PutMapping("/{id}")
     public ProductResponse updateProduct(@PathVariable Long id, @RequestBody ProductRequest request,
             HttpSession session) {
+        verifyAdmin(session);
         return productService.updateProduct(id, request);
     }
 
-    // Delete product
+    // Admin Only: Delete product
     @DeleteMapping("/{id}")
     public String deleteProduct(@PathVariable Long id, HttpSession session) {
+        verifyAdmin(session);
         productService.deleteProduct(id);
         return "Product deleted successfully";
+    }
+
+    // Helper method to verify Admin role from session
+    private void verifyAdmin(HttpSession session) {
+        String role = (String) session.getAttribute("role");
+        if (role == null || !role.equals("ADMIN")) {
+            throw new RuntimeException("Unauthorized: Admin access required.");
+        }
     }
 }
