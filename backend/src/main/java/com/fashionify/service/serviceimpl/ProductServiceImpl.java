@@ -125,12 +125,27 @@ public class ProductServiceImpl implements ProductService {
         return optionalProduct.get();
     }
 
-    // Helper: Trim ProductRequest string fields
+    // Helper: Trim and validate ProductRequest fields
     private void trimProductRequest(ProductRequest request) {
-        if (request != null) {
-            if (request.getName() != null) request.setName(request.getName().trim());
-            if (request.getDescription() != null) request.setDescription(request.getDescription().trim());
-            if (request.getImageUrl() != null) request.setImageUrl(request.getImageUrl().trim());
+        if (request == null) {
+            throw new RuntimeException("Product details are required.");
+        }
+
+        if (request.getName() != null) {
+            request.setName(request.getName().trim());
+        }
+        if (request.getDescription() != null) {
+            request.setDescription(request.getDescription().trim());
+        }
+        if (request.getImageUrl() != null) {
+            request.setImageUrl(request.getImageUrl().trim());
+        }
+
+        if (request.getPrice() != null && request.getPrice() < 0) {
+            throw new RuntimeException("Invalid product details: Price cannot be negative.");
+        }
+        if (request.getStock() != null && request.getStock() < 0) {
+            throw new RuntimeException("Invalid product details: Stock quantity cannot be negative.");
         }
     }
 }

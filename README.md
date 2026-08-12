@@ -1,79 +1,92 @@
 # Fashionify
 
-Fashionify is a simple, beginner-friendly full-stack fashion e-commerce MVP built with **Spring Boot** on the backend and **React.js** on the frontend. The project demonstrates a clean e-commerce flow with two roles (**USER** and **ADMIN**) while keeping the code readable, structured, and easy to maintain.
+Fashionify is a clean, beginner-friendly full-stack e-commerce platform built with **Spring Boot 3** on the backend and **React.js** on the frontend. The project demonstrates a robust, production-grade e-commerce architecture with two roles (**USER** and **ADMIN**), zero-trust backend security validation, automatic stock deduction, session-based authentication, and comprehensive UML documentation.
 
 > [!IMPORTANT]
-> **Fashionify uses basic Spring Boot `HttpSession`-based session authentication, not JWT or Spring Security.**
+> **Fashionify uses Spring Boot `HttpSession`-based session authentication with CORS credential sharing (`withCredentials: true`), paired with zero-trust server-side validation.**
 
 ---
 
 ## 🛠 Tech Stack
 
 ### Backend
-* **Language:** Java 21
-* **Framework:** Spring Boot (Spring Web, Spring Data JPA, Bean Validation)
-* **Database:** MySQL 8.0
-* **Authentication & Hashing:** Spring `HttpSession`, BCrypt (`jBCrypt`)
+* **Language & JDK:** Java 21
+* **Framework:** Spring Boot 3 (Spring Web MVC, Spring Data JPA, Bean Validation)
+* **Database:** MySQL 8.0 / H2 Relational Database
+* **Authentication & Hashing:** Spring `HttpSession`, Salted BCrypt (`jBCrypt`)
 * **DTO Pattern:** Clean Request (`dto.request`) and Response (`dto.response`) separation
-* **Build Tool:** Maven
+* **Build Tool:** Maven (`./mvnw`)
 
 ### Frontend
 * **Library & Bundler:** React.js (v19) + Vite
 * **Routing:** React Router DOM (v7) with strict Role & Guest Route Protection
 * **HTTP Client:** Axios (`withCredentials: true`)
 * **State Management:** React Context API (`AuthContext`, `CartContext`)
-* **Currency:** Indian Rupee (`₹`) formatting across the app
+* **Currency:** Indian Rupee (`₹`) formatting across all store views
 * **Styling & UI:** Tailwind CSS (v4), shadcn/ui components, Lucide React icons
 
 ---
 
-## 🔒 Architecture & Data Flow
+## 🔒 Zero-Trust Architecture & Data Flow
 
 ```text
-               FRONTEND (React)
+               FRONTEND (React SPA)
                       │
-            ┌─────────┴─────────┐
-            │                   │
-       Request DTO         Response DTO
-            │                   ▲
-            ▼                   │
+             ┌─────────┴─────────┐
+             │                   │
+        Request DTO         Response DTO
+             │                   ▲
+             ▼                   │
         Controller ─────────────┘
-            │
-            ▼
-         Service (Beginner-Friendly Logic & Try-Catch)
-            │
-            ▼
-        Repository
-            │
-            ▼
-         Entity (User, Product, Order, OrderItem)
-            │
-            ▼
-         Database (MySQL)
+             │ (Session Authentication Verification)
+             ▼
+          Service Layer (Zero-Trust Validation & Business Logic)
+             │ (DB Price Verification, Stock Check & Deduction)
+             ▼
+         Repository Layer (Spring Data JPA)
+             │
+             ▼
+          Entities (User, Product, Cart, CartItem, Order, OrderItem)
+             │
+             ▼
+          Database (MySQL / H2)
 ```
 
-* **Session-Based Authentication:** Fashionify uses standard Spring Boot `HttpSession`. After successful login, the backend stores session attributes (`"userId"` and `"role"`).
-* **DTO Response Safety:** Entities are never returned directly from controllers. `UserResponse` strips the password hash before sending user data to React.
-* **Role & Guest Protection:** `ProtectedRoute.jsx` intercepts request routing:
-  * Guests can view public store pages (`/`, `/product/:id`).
-  * Logged-in `ADMIN` users are strictly redirected to `/admin` dashboard and cannot access user store pages.
-  * Non-admin users cannot access `/admin` dashboard routes.
-* **Cookie Credentials:** Axios uses `withCredentials: true` so the browser sends the HTTP session cookie (`JSESSIONID`) automatically.
+### Core Security Guarantees
+1. **Zero-Trust Backend Validation:** The backend **never** trusts client-supplied prices, stock counts, or user IDs. All calculations utilize authoritative database prices (`product.getPrice()`).
+2. **Atomic Stock Management:** Order placement verifies stock availability ($\text{currentStock} \ge \text{requestedQuantity}$), deducts stock, and saves updated product stock atomically in DB.
+3. **Session-Based Authentication:** Standard `HttpSession` stores `"userId"` and `"role"`. Axios sends `JSESSIONID` cookies automatically via `withCredentials: true`.
+4. **DTO Data Masking:** JPA Entities are never exposed directly to the REST API. `UserResponse` strips password hashes before returning user data.
+5. **Real-Time Input Sanitization:**
+   - Phone numbers strictly filtered to 10 numeric digits (`maxLength={10}`, `inputMode="numeric"`).
+   - Product Price ($> 0$) and Stock ($\ge 0$) cleansed in real-time on frontend and enforced on backend.
+
+---
+
+## 📐 UML Diagrams & Documentation
+
+Comprehensive UML documentation is available in **[uml_diagrams.md](file:///Users/subhajit/Developer/Development/fsp_sec-b/fashionify_v1/uml_diagrams.md)**:
+- **System Architecture Overview Diagram**
+- **Database Entity-Relationship Diagram (ERD)**
+- **Full Backend UML Class Diagram**
+- **Frontend & Component Architecture Diagram**
+- **13-Step Secure Order Processing Sequence Diagram**
+- **Shopping Cart & Authentication Sequence Diagrams**
 
 ---
 
 ## 🌟 Features
 
-### User Features
-* **Authentication:** Account registration, login, logout, and session validation (`/api/auth/me`).
-* **Catalog Browsing:** Browse latest collections in Indian Rupee (`₹`) pricing and view product details.
-* **Shopping Cart:** Add products, update quantities, remove items, and clear cart (persisted via `localStorage`).
-* **Checkout & Orders:** Submit delivery address and phone number to place orders, view order history (`My Orders`), and view ordered product thumbnails & item prices.
+### Customer Features
+* **Authentication:** Registration, login, logout, and session check (`/api/auth/me`).
+* **Catalog Browsing:** Browse collections in Indian Rupee (`₹`) pricing with dynamic stock badges (*IN STOCK (count)* vs. *SOLD OUT*).
+* **Shopping Cart:** Add products, update quantities, remove items, and clear cart with real-time stock limit error alerts (`/api/cart`).
+* **Checkout & Orders:** Submit 10-digit phone number and delivery address, place orders with automatic stock reduction, and view order history with thumbnails (`/my-orders`).
 
 ### Admin Features
-* **Admin Dashboard:** Overview cards for Total Products, Total Orders, Pending Orders, Delivered Orders, and Recent Orders.
-* **Product Management:** Add new products with cover image link at top and multi-line description textarea, edit existing products, and delete products (protected by `verifyAdmin(session)` check).
-* **Order Management:** View all customer orders with customer details (Name, Email, Phone, Address), item thumbnails, and update status (`PLACED`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
+* **Admin Dashboard:** Overview statistics for Total Products, Total Orders, Pending Orders, Delivered Orders, and Recent Orders.
+* **Product Catalog Management:** Add new products, update prices ($> 0$) and stock ($\ge 0$), delete products with cascading cleanup.
+* **Order Management:** View all customer orders with customer details (Name, Email, Phone, Address), item thumbnails, and update order statuses (`PLACED`, `SHIPPED`, `DELIVERED`, `CANCELLED`).
 
 ---
 
@@ -84,32 +97,34 @@ Fashionify/
 │
 ├── backend/
 │   ├── src/
-│   │   └── main/
-│   │       ├── java/com/fashionify/
-│   │       │   ├── controller/      # REST API Controllers (Auth, Product, Order)
-│   │       │   ├── service/         # Service Layer with simple loops & try-catch
-│   │       │   ├── repository/      # Spring Data JPA Repositories
-│   │       │   ├── entity/          # JPA Entities (User, Product, Order, OrderItem)
-│   │       │   │   └── enums/       # Enums (Role, OrderStatus)
-│   │       │   ├── dto/             # Data Transfer Objects
-│   │       │   │   ├── request/     # Incoming DTOs (Register, Login, Product, Order, OrderStatusUpdate)
-│   │       │   │   └── response/    # Outgoing DTOs (UserResponse, ProductResponse, OrderResponse, OrderItemResponse)
-│   │       │   └── FashionifyApplication.java
-│   │       └── resources/
-│   │           └── application.properties
+│   │   ├── java/com/fashionify/
+│   │   │   ├── controller/      # REST Controllers (Auth, Product, Cart, Order)
+│   │   │   ├── service/         # Service Layer (AuthService, ProductService, CartService, OrderService)
+│   │   │   │   └── serviceimpl/ # Beginner-friendly, zero-trust service implementations
+│   │   │   ├── repository/      # Spring Data JPA Repositories
+│   │   │   ├── entity/          # JPA Entities (User, Product, Cart, CartItem, Order, OrderItem)
+│   │   │   │   └── enums/       # Enums (Role, OrderStatus)
+│   │   │   ├── dto/             # Data Transfer Objects
+│   │   │   │   ├── request/     # Request DTOs (Register, Login, Product, CartItem, Order, OrderStatusUpdate)
+│   │   │   │   └── response/    # Response DTOs (UserResponse, ProductResponse, CartResponse, OrderResponse)
+│   │   │   ├── mapper/          # Entity-to-DTO Mappers (UserMapper, ProductMapper, CartMapper, OrderMapper)
+│   │   │   └── FashionifyApplication.java
+│   │   └── resources/
+│   │       └── application.properties
 │   └── pom.xml
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/              # Shared UI & Layout (Navbar, ProductCard, ProtectedRoute, AdminLayout)
-│   │   ├── components/ui/           # Reusable shadcn/ui components (Button, Card, Input, Table, etc.)
-│   │   ├── context/                 # AuthContext & CartContext
-│   │   ├── pages/                   # User pages (Home, Login, Register, ProductDetails, Cart, Checkout, MyOrders)
-│   │   │   └── admin/               # Admin pages (AdminDashboard, AdminProducts, AdminOrders)
+│   │   ├── components/          # Shared UI (Navbar, Footer, ProductCard, ProtectedRoute, AdminLayout)
+│   │   ├── components/ui/       # shadcn/ui components (Button, Card, Input, Table, Dialog, etc.)
+│   │   ├── context/             # AuthContext & CartContext
+│   │   ├── pages/               # User pages (Home, ProductDetails, Cart, Checkout, MyOrders, Login, Register)
+│   │   │   └── admin/           # Admin pages (AdminDashboard, AdminProducts, AdminOrders)
 │   │   └── services/
-│   │       └── api.js               # Axios instance configuration (withCredentials: true)
+│   │       └── api.js           # Axios instance configuration (withCredentials: true)
 │   └── package.json
 │
+├── uml_diagrams.md              # Detailed Mermaid UML documentation
 └── README.md
 ```
 
@@ -118,16 +133,12 @@ Fashionify/
 ## 🗄 Database Entities & DTOs
 
 ### Entities
-* **User:** `id`, `name`, `email`, `password`, `role`
-* **Product:** `id`, `name`, `description`, `price`, `imageUrl`, `stock`
+* **User:** `id`, `name`, `email`, `password`, `role` (`USER` | `ADMIN`)
+* **Product:** `id`, `name`, `description`, `price`, `imageUrl`, `stock`, `createdAt`
+* **Cart:** `id`, `user` (OneToOne), `items` (OneToMany)
+* **CartItem:** `id`, `cart` (ManyToOne), `product` (ManyToOne), `quantity`
 * **Order:** `id`, `user` (ManyToOne), `address`, `phone`, `totalAmount`, `status`, `createdAt`, `items` (OneToMany)
 * **OrderItem:** `id`, `order` (ManyToOne), `product` (ManyToOne), `quantity`, `price`
-
-### Response DTOs
-* **UserResponse:** `id`, `name`, `email`, `role` *(password hash excluded)*
-* **ProductResponse:** `id`, `name`, `description`, `price`, `imageUrl`, `stock`
-* **OrderItemResponse:** `id`, `productId`, `productName`, `productImageUrl`, `quantity`, `price`
-* **OrderResponse:** `id`, `userId`, `userName`, `userEmail`, `address`, `phone`, `totalAmount`, `status`, `createdAt`, `items`
 
 ---
 
@@ -137,63 +148,57 @@ Fashionify/
 
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Public | Registers a new user (`RegisterRequest` -> `UserResponse`) |
-| `POST` | `/api/auth/login` | Public | Authenticates user & sets `HttpSession` (`LoginRequest` -> `UserResponse`) |
-| `POST` | `/api/auth/logout` | Authenticated | Invalidates the current `HttpSession` |
-| `GET` | `/api/auth/me` | Authenticated | Returns logged-in user response from current session |
+| `POST` | `/api/auth/register` | Public | Register new user account |
+| `POST` | `/api/auth/login` | Public | Authenticate user & start `HttpSession` |
+| `POST` | `/api/auth/logout` | Authenticated | Invalidate current `HttpSession` |
+| `GET` | `/api/auth/me` | Authenticated | Get current authenticated user details |
 
 ### Product Endpoints (`/api/products`)
 
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/products` | Public | Retrieve all products in catalog (`List<ProductResponse>`) |
-| `GET` | `/api/products/{id}` | Public | Retrieve single product details (`ProductResponse`) |
-| `POST` | `/api/products` | Admin | Create a new product (`ProductRequest` -> `ProductResponse`) |
-| `PUT` | `/api/products/{id}` | Admin | Update product details (`ProductRequest` -> `ProductResponse`) |
+| `GET` | `/api/products` | Public | List all catalog products |
+| `GET` | `/api/products/{id}` | Public | Get product details by ID |
+| `POST` | `/api/products` | Admin | Create product ($\text{price} > 0, \text{stock} \ge 0$) |
+| `PUT` | `/api/products/{id}` | Admin | Update product details |
 | `DELETE` | `/api/products/{id}` | Admin | Delete product from catalog |
+
+### Cart Endpoints (`/api/cart`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/cart` | Customer | Fetch current user's shopping cart |
+| `POST` | `/api/cart/items` | Customer | Add item to cart with stock validation |
+| `PUT` | `/api/cart/items/{productId}` | Customer | Update item quantity in cart |
+| `DELETE` | `/api/cart/items/{productId}` | Customer | Remove item from cart |
+| `DELETE` | `/api/cart` | Customer | Clear all items from cart |
 
 ### Order Endpoints (`/api/orders`)
 
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/orders` | Customer | Create new order & calculate total amount (`OrderRequest` -> `OrderResponse`) |
-| `GET` | `/api/orders/my` | Customer | Retrieve current user's orders (`List<OrderResponse>`) |
-| `GET` | `/api/orders` | Admin | Retrieve all customer orders (`List<OrderResponse>`) |
-| `PUT` | `/api/orders/{id}/status` | Admin | Update order status (`OrderStatusUpdateRequest` -> `OrderResponse`) |
-
----
-
-## 🌐 Frontend Routes
-
-| Route | Access | Component |
-| :--- | :--- | :--- |
-| `/` | Public / Guest | Home |
-| `/login` | Public | Login |
-| `/register` | Public | Register |
-| `/product/:id` | Public / Guest | ProductDetails |
-| `/cart` | Customer | Cart |
-| `/checkout` | Customer | Checkout |
-| `/my-orders` | Customer | MyOrders |
-| `/admin` | Admin | AdminDashboard |
-| `/admin/products` | Admin | AdminProducts |
-| `/admin/orders` | Admin | AdminOrders |
+| `POST` | `/api/orders` | Customer | Create order, deduct stock & compute trusted total |
+| `GET` | `/api/orders/my` | Customer | Get customer's order history |
+| `GET` | `/api/orders` | Admin | Get all customer orders |
+| `PUT` | `/api/orders/{id}/status` | Admin | Update order status |
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Database Setup
-Create a local MySQL database:
+Create local MySQL database:
 
 ```sql
 CREATE DATABASE fashionify;
 ```
 
-Connection settings in `backend/src/main/resources/application.properties`:
-* **Database Name:** `fashionify`
-* **Username:** `root`
-* **Password:** `root123`
-* **Host / Port:** `localhost:3306`
+Configure `backend/src/main/resources/application.properties`:
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/fashionify
+spring.datasource.username=root
+spring.datasource.password=root123
+```
 
 ### 2. Run the Backend
 ```bash

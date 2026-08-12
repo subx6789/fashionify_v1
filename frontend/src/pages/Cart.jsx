@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { ShoppingBag, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
 
 const Cart = () => {
-  const { cart, increaseQuantity, decreaseQuantity, removeFromCart, cartTotal } = useCart();
+  const { cart, increaseQuantity, decreaseQuantity, removeFromCart, cartTotal, cartError, clearCartError } = useCart();
   const navigate = useNavigate();
 
   if (cart.length === 0) {
@@ -28,7 +28,16 @@ const Cart = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold tracking-tight text-neutral-900 mb-6">Shopping Cart</h1>
+
+      {cartError && (
+        <div className="mb-6 rounded-md bg-red-50 p-4 border border-red-200 flex items-center justify-between">
+          <p className="text-sm font-medium text-red-700">{cartError}</p>
+          <button onClick={clearCartError} className="text-xs text-red-500 font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Cart Items List */}

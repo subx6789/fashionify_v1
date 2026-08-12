@@ -276,10 +276,14 @@ const AdminProducts = () => {
                 <Label htmlFor="price">Price (₹)</Label>
                 <Input
                   id="price"
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="e.g. 799"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e) => {
+                    const cleanVal = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+                    setFormData({ ...formData, price: cleanVal });
+                  }}
                   required
                 />
               </div>
@@ -287,9 +291,14 @@ const AdminProducts = () => {
                 <Label htmlFor="stock">Stock Quantity</Label>
                 <Input
                   id="stock"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="e.g. 10"
                   value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                  onChange={(e) => {
+                    const cleanVal = e.target.value.replace(/[^0-9]/g, '');
+                    setFormData({ ...formData, stock: cleanVal });
+                  }}
                   required
                 />
               </div>

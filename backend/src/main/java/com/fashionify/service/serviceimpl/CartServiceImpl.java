@@ -68,15 +68,25 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartResponse addItem(Long userId, CartItemRequest request) {
         try {
+            if (request == null || request.getProductId() == null) {
+                throw new RuntimeException("Product ID is required to add item to cart.");
+            }
+
             int addQuantity = (request.getQuantity() != null && request.getQuantity() > 0) ? request.getQuantity() : 1;
 
             Cart cart = getOrCreateCartEntity(userId);
             Product product = findProductByIdOrThrow(request.getProductId());
 
             CartItem existingItem = findCartItemByProductId(cart, product.getId());
+            int totalDesiredQuantity = (existingItem != null ? existingItem.getQuantity() : 0) + addQuantity;
+            int availableStock = product.getStock() != null ? product.getStock() : 0;
+
+            if (availableStock < totalDesiredQuantity) {
+                throw new RuntimeException("Cannot add to cart: Desired total quantity (" + totalDesiredQuantity + ") exceeds available stock (" + availableStock + ")");
+            }
 
             if (existingItem != null) {
-                existingItem.setQuantity(existingItem.getQuantity() + addQuantity);
+                existingItem.setQuantity(totalDesiredQuantity);
             } else {
                 CartItem newItem = new CartItem(cart, product, addQuantity);
                 cart.getItems().add(newItem);
@@ -99,11 +109,17 @@ public class CartServiceImpl implements CartService {
             if (newQuantity <= 0) {
                 removeCartItemByProductId(cart, productId);
             } else {
+                Product product = findProductByIdOrThrow(productId);
+                int availableStock = product.getStock() != null ? product.getStock() : 0;
+
+                if (availableStock < newQuantity) {
+                    throw new RuntimeException("Cannot update cart quantity: Requested quantity (" + newQuantity + ") exceeds available stock (" + availableStock + ")");
+                }
+
                 CartItem existingItem = findCartItemByProductId(cart, productId);
                 if (existingItem != null) {
                     existingItem.setQuantity(newQuantity);
                 } else {
-                    Product product = findProductByIdOrThrow(productId);
                     CartItem newItem = new CartItem(cart, product, newQuantity);
                     cart.getItems().add(newItem);
                 }

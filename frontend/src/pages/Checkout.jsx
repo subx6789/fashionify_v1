@@ -108,9 +108,14 @@ const Checkout = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="10 digit phone number"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="10-digit phone number"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                      const numericValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                      setPhone(numericValue);
+                    }}
                     required
                   />
                 </div>

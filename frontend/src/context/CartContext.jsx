@@ -7,6 +7,9 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
   const [cart, setCart] = useState([]);
+  const [cartError, setCartError] = useState('');
+
+  const clearCartError = () => setCartError('');
 
   // Fetch the shopping cart for the logged-in user from the backend
   const fetchBackendCart = useCallback(async () => {
@@ -35,6 +38,7 @@ export const CartProvider = ({ children }) => {
 
   // Add product to cart (requires user to be logged in)
   const addToCart = async (product, qty = 1) => {
+    setCartError('');
     if (!user) {
       window.location.href = '/login';
       return false;
@@ -47,13 +51,16 @@ export const CartProvider = ({ children }) => {
       }
       return true;
     } catch (e) {
-      console.error('Failed to add item to backend cart', e);
+      const errMsg = e?.response?.data?.message || 'Failed to add item to cart.';
+      console.error('Failed to add item to backend cart:', errMsg);
+      setCartError(errMsg);
       return false;
     }
   };
 
   // Remove a product from the cart
   const removeFromCart = async (productId) => {
+    setCartError('');
     if (!user) {
       window.location.href = '/login';
       return;
@@ -65,18 +72,20 @@ export const CartProvider = ({ children }) => {
         setCart(res.data.items);
       }
     } catch (e) {
-      console.error('Failed to remove item from backend cart', e);
+      const errMsg = e?.response?.data?.message || 'Failed to remove item from cart.';
+      console.error('Failed to remove item from backend cart:', errMsg);
+      setCartError(errMsg);
     }
   };
 
   // Increase quantity of a product in the cart
   const increaseQuantity = async (productId) => {
+    setCartError('');
     if (!user) {
       window.location.href = '/login';
       return;
     }
 
-    // Simple for-loop to find current quantity
     let currentQty = 0;
     for (let i = 0; i < cart.length; i++) {
       const item = cart[i];
@@ -94,18 +103,20 @@ export const CartProvider = ({ children }) => {
         setCart(res.data.items);
       }
     } catch (e) {
-      console.error('Failed to increase quantity in backend cart', e);
+      const errMsg = e?.response?.data?.message || 'Failed to increase quantity.';
+      console.error('Failed to increase quantity in backend cart:', errMsg);
+      setCartError(errMsg);
     }
   };
 
   // Decrease quantity of a product in the cart
   const decreaseQuantity = async (productId) => {
+    setCartError('');
     if (!user) {
       window.location.href = '/login';
       return;
     }
 
-    // Simple for-loop to find current quantity
     let currentQty = 1;
     for (let i = 0; i < cart.length; i++) {
       const item = cart[i];
@@ -128,12 +139,15 @@ export const CartProvider = ({ children }) => {
         setCart(res.data.items);
       }
     } catch (e) {
-      console.error('Failed to decrease quantity in backend cart', e);
+      const errMsg = e?.response?.data?.message || 'Failed to decrease quantity.';
+      console.error('Failed to decrease quantity in backend cart:', errMsg);
+      setCartError(errMsg);
     }
   };
 
   // Clear all items from the cart
   const clearCart = async () => {
+    setCartError('');
     if (!user) {
       setCart([]);
       return;
@@ -147,11 +161,13 @@ export const CartProvider = ({ children }) => {
         setCart([]);
       }
     } catch (e) {
-      console.error('Failed to clear backend cart', e);
+      const errMsg = e?.response?.data?.message || 'Failed to clear cart.';
+      console.error('Failed to clear backend cart:', errMsg);
+      setCartError(errMsg);
     }
   };
 
-  // Calculate cart total price using a simple beginner-friendly for-loop
+  // Calculate cart total price
   let cartTotal = 0;
   let cartItemCount = 0;
 
@@ -169,6 +185,8 @@ export const CartProvider = ({ children }) => {
       value={{
         cart,
         setCart,
+        cartError,
+        clearCartError,
         addToCart,
         removeFromCart,
         increaseQuantity,

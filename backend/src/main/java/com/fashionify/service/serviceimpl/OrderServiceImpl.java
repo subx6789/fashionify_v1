@@ -43,10 +43,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createOrder(Long userId, OrderRequest request) {
         try {
+            User user = findUserByIdOrThrow(userId);
+
+            if (request == null || request.getItems() == null || request.getItems().isEmpty()) {
+                throw new RuntimeException("Invalid order: Order must contain at least one item.");
+            }
+
             String address = request.getAddress() != null ? request.getAddress().trim() : "";
             String phone = request.getPhone() != null ? request.getPhone().trim() : "";
 
-            User user = findUserByIdOrThrow(userId);
+            if (address.isEmpty() || phone.isEmpty()) {
+                throw new RuntimeException("Delivery address and phone number are required.");
+            }
 
             Order order = new Order();
             order.setUser(user);
@@ -58,19 +66,32 @@ public class OrderServiceImpl implements OrderService {
             List<OrderItem> orderItems = new ArrayList<>();
             double totalAmount = 0.0;
 
-            if (request.getItems() != null) {
-                for (OrderItemRequest itemReq : request.getItems()) {
-                    Product product = findProductByIdOrThrow(itemReq.getProductId());
+            for (OrderItemRequest itemReq : request.getItems()) {
+                Product product = findProductByIdOrThrow(itemReq.getProductId());
 
-                    OrderItem item = new OrderItem();
-                    item.setOrder(order);
-                    item.setProduct(product);
-                    item.setQuantity(itemReq.getQuantity());
-                    item.setPrice(product.getPrice());
-
-                    totalAmount = totalAmount + (product.getPrice() * itemReq.getQuantity());
-                    orderItems.add(item);
+                if (itemReq.getQuantity() == null || itemReq.getQuantity() <= 0) {
+                    throw new RuntimeException("Invalid quantity for product: " + product.getName());
                 }
+                int quantityOrdered = itemReq.getQuantity();
+
+                int currentStock = product.getStock() != null ? product.getStock() : 0;
+                if (currentStock < quantityOrdered) {
+                    throw new RuntimeException("Insufficient stock for product: " + product.getName() + " (Available: " + currentStock + ", Requested: " + quantityOrdered + ")");
+                }
+
+                product.setStock(currentStock - quantityOrdered);
+                productRepository.save(product);
+
+                Double dbPrice = product.getPrice() != null ? product.getPrice() : 0.0;
+
+                totalAmount = totalAmount + (dbPrice * quantityOrdered);
+
+                OrderItem item = new OrderItem();
+                item.setOrder(order);
+                item.setProduct(product);
+                item.setQuantity(quantityOrdered);
+                item.setPrice(dbPrice);
+                orderItems.add(item);
             }
 
             order.setTotalAmount(totalAmount);
