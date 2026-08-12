@@ -6,17 +6,14 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const { user } = useAuth();
-  const [cart, setCart] = useState(() => {
-    try {
-      const savedCart = localStorage.getItem('fashionify_cart');
-      return savedCart ? JSON.parse(savedCart) : [];
-    } catch (e) {
-      return [];
-    }
-  });
+  const [cart, setCart] = useState([]);
 
+  // Fetch the shopping cart for the logged-in user from the backend
   const fetchBackendCart = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setCart([]);
+      return;
+    }
     try {
       const res = await api.get('/cart');
       if (res.data && res.data.items) {
@@ -27,152 +24,145 @@ export const CartProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Load cart when user session changes
   useEffect(() => {
     if (user) {
       fetchBackendCart();
     } else {
-      try {
-        const savedCart = localStorage.getItem('fashionify_cart');
-        setCart(savedCart ? JSON.parse(savedCart) : []);
-      } catch (e) {
-        setCart([]);
-      }
+      setCart([]);
     }
   }, [user, fetchBackendCart]);
 
-  useEffect(() => {
-    if (!user) {
-      try {
-        localStorage.setItem('fashionify_cart', JSON.stringify(cart));
-      } catch (e) {
-        console.error('Failed to save cart to localStorage', e);
-      }
-    }
-  }, [cart, user]);
-
+  // Add product to cart (requires user to be logged in)
   const addToCart = async (product, qty = 1) => {
-    if (user) {
-      try {
-        const res = await api.post('/cart/items', { productId: product.id, quantity: qty });
-        if (res.data && res.data.items) {
-          setCart(res.data.items);
-        }
-        return;
-      } catch (e) {
-        console.error('Failed to add item to backend cart', e);
-      }
+    if (!user) {
+      window.location.href = '/login';
+      return false;
     }
 
-    // Local cart fallback
-    let found = false;
-    const updatedCart = cart.map((item) => {
-      if (item.product.id === product.id) {
-        found = true;
-        return { ...item, quantity: item.quantity + qty };
+    try {
+      const res = await api.post('/cart/items', { productId: product.id, quantity: qty });
+      if (res.data && res.data.items) {
+        setCart(res.data.items);
       }
-      return item;
-    });
-
-    if (found) {
-      setCart(updatedCart);
-    } else {
-      setCart([...cart, { product, quantity: qty }]);
+      return true;
+    } catch (e) {
+      console.error('Failed to add item to backend cart', e);
+      return false;
     }
   };
 
+  // Remove a product from the cart
   const removeFromCart = async (productId) => {
-    if (user) {
-      try {
-        const res = await api.delete(`/cart/items/${productId}`);
-        if (res.data && res.data.items) {
-          setCart(res.data.items);
-        }
-        return;
-      } catch (e) {
-        console.error('Failed to remove item from backend cart', e);
-      }
+    if (!user) {
+      window.location.href = '/login';
+      return;
     }
 
-    const updatedCart = cart.filter((item) => item.product.id !== productId);
-    setCart(updatedCart);
+    try {
+      const res = await api.delete(`/cart/items/${productId}`);
+      if (res.data && res.data.items) {
+        setCart(res.data.items);
+      }
+    } catch (e) {
+      console.error('Failed to remove item from backend cart', e);
+    }
   };
 
+  // Increase quantity of a product in the cart
   const increaseQuantity = async (productId) => {
-    const item = cart.find((i) => i.product.id === productId);
-    const newQty = (item ? item.quantity : 0) + 1;
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
 
-    if (user) {
-      try {
-        const res = await api.put(`/cart/items/${productId}`, { quantity: newQty });
-        if (res.data && res.data.items) {
-          setCart(res.data.items);
-        }
-        return;
-      } catch (e) {
-        console.error('Failed to increase quantity in backend cart', e);
+    // Simple for-loop to find current quantity
+    let currentQty = 0;
+    for (let i = 0; i < cart.length; i++) {
+      const item = cart[i];
+      if (item.product && item.product.id === productId) {
+        currentQty = item.quantity;
+        break;
       }
     }
 
-    const updatedCart = cart.map((i) => {
-      if (i.product.id === productId) {
-        return { ...i, quantity: i.quantity + 1 };
+    const newQty = currentQty + 1;
+
+    try {
+      const res = await api.put(`/cart/items/${productId}`, { quantity: newQty });
+      if (res.data && res.data.items) {
+        setCart(res.data.items);
       }
-      return i;
-    });
-    setCart(updatedCart);
+    } catch (e) {
+      console.error('Failed to increase quantity in backend cart', e);
+    }
   };
 
+  // Decrease quantity of a product in the cart
   const decreaseQuantity = async (productId) => {
-    const item = cart.find((i) => i.product.id === productId);
-    const newQty = (item ? item.quantity : 1) - 1;
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
 
-    if (user) {
-      try {
-        if (newQty <= 0) {
-          return await removeFromCart(productId);
-        }
-        const res = await api.put(`/cart/items/${productId}`, { quantity: newQty });
-        if (res.data && res.data.items) {
-          setCart(res.data.items);
-        }
-        return;
-      } catch (e) {
-        console.error('Failed to decrease quantity in backend cart', e);
+    // Simple for-loop to find current quantity
+    let currentQty = 1;
+    for (let i = 0; i < cart.length; i++) {
+      const item = cart[i];
+      if (item.product && item.product.id === productId) {
+        currentQty = item.quantity;
+        break;
       }
     }
 
-    const updatedCart = cart
-      .map((i) => {
-        if (i.product.id === productId) {
-          return { ...i, quantity: i.quantity - 1 };
-        }
-        return i;
-      })
-      .filter((i) => i.quantity > 0);
+    const newQty = currentQty - 1;
 
-    setCart(updatedCart);
+    if (newQty <= 0) {
+      await removeFromCart(productId);
+      return;
+    }
+
+    try {
+      const res = await api.put(`/cart/items/${productId}`, { quantity: newQty });
+      if (res.data && res.data.items) {
+        setCart(res.data.items);
+      }
+    } catch (e) {
+      console.error('Failed to decrease quantity in backend cart', e);
+    }
   };
 
+  // Clear all items from the cart
   const clearCart = async () => {
-    if (user) {
-      try {
-        const res = await api.delete('/cart');
-        if (res.data && res.data.items) {
-          setCart(res.data.items);
-        } else {
-          setCart([]);
-        }
-        return;
-      } catch (e) {
-        console.error('Failed to clear backend cart', e);
-      }
+    if (!user) {
+      setCart([]);
+      return;
     }
 
-    setCart([]);
+    try {
+      const res = await api.delete('/cart');
+      if (res.data && res.data.items) {
+        setCart(res.data.items);
+      } else {
+        setCart([]);
+      }
+    } catch (e) {
+      console.error('Failed to clear backend cart', e);
+    }
   };
 
-  const cartTotal = cart.reduce((acc, item) => acc + (item.product?.price || 0) * (item.quantity || 1), 0);
-  const cartItemCount = cart.reduce((acc, item) => acc + (item.quantity || 1), 0);
+  // Calculate cart total price using a simple beginner-friendly for-loop
+  let cartTotal = 0;
+  let cartItemCount = 0;
+
+  for (let i = 0; i < cart.length; i++) {
+    const item = cart[i];
+    const price = item.product && item.product.price ? item.product.price : 0;
+    const quantity = item.quantity ? item.quantity : 1;
+
+    cartTotal = cartTotal + (price * quantity);
+    cartItemCount = cartItemCount + quantity;
+  }
 
   return (
     <CartContext.Provider

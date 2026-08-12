@@ -4,6 +4,7 @@ import com.fashionify.dto.request.CartItemRequest;
 import com.fashionify.dto.response.CartResponse;
 import com.fashionify.service.CartService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,7 +35,7 @@ public class CartController {
 
     // 2. POST /api/cart/items
     @PostMapping("/items")
-    public CartResponse addItemToCart(@RequestBody CartItemRequest request, HttpSession session) {
+    public CartResponse addItemToCart(@Valid @RequestBody CartItemRequest request, HttpSession session) {
         Long userId = getUserIdOrThrow(session);
         return cartService.addItem(userId, request);
     }
@@ -42,7 +43,7 @@ public class CartController {
     // 3. PUT /api/cart/items/{productId}
     @PutMapping("/items/{productId}")
     public CartResponse updateCartItemQuantity(@PathVariable Long productId,
-                                                @RequestBody CartItemRequest request,
+                                                @Valid @RequestBody CartItemRequest request,
                                                 HttpSession session) {
         Long userId = getUserIdOrThrow(session);
         return cartService.updateItemQuantity(userId, productId, request);

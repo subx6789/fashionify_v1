@@ -21,18 +21,41 @@ const Checkout = () => {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
-    // Prepare payload matching backend OrderRequest exactly:
+    const trimmedAddress = address.trim();
+    const trimmedPhone = phone.trim();
+    const cleanPhone = trimmedPhone.replace(/[^0-9]/g, '');
+
+    if (!trimmedAddress) {
+      setError('Please enter a delivery address.');
+      return;
+    }
+
+    if (cleanPhone.length !== 10) {
+      setError('Phone number must be exactly 10 digits.');
+      return;
+    }
+
+    setLoading(true);
+
+    // Prepare payload matching backend OrderRequest:
     // { address, phone, items: [{ productId, quantity }] }
+    const orderItems = [];
+    for (let i = 0; i < cart.length; i++) {
+      const item = cart[i];
+      if (item.product) {
+        orderItems.push({
+          productId: item.product.id,
+          quantity: item.quantity,
+        });
+      }
+    }
+
     const orderRequest = {
-      address,
-      phone,
-      items: cart.map((item) => ({
-        productId: item.product.id,
-        quantity: item.quantity,
-      })),
+      address: trimmedAddress,
+      phone: cleanPhone,
+      items: orderItems,
     };
 
     try {
@@ -40,7 +63,7 @@ const Checkout = () => {
       clearCart();
       navigate('/my-orders');
     } catch (err) {
-      setError('Failed to place order. Please try again.',err);
+      setError(err?.response?.data?.message || 'Failed to place order. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -74,7 +97,7 @@ const Checkout = () => {
                   <Label htmlFor="address">Delivery Address</Label>
                   <Input
                     id="address"
-                    placeholder="123 Fashion St, City, Country"
+                    placeholder="Street Address, City, State, Pincode"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     required
@@ -85,7 +108,7 @@ const Checkout = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+1 234 567 8900"
+                    placeholder="10 digit phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required

@@ -101,30 +101,30 @@ const AdminOrders = () => {
                     <TableCell className="font-bold text-xs sm:text-sm text-neutral-900 align-top py-4">
                       #{order.id}
                     </TableCell>
-                    <TableCell className="text-xs sm:text-sm min-w-48 align-top py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 font-bold text-neutral-900">
+                    <TableCell className="text-xs sm:text-sm max-w-55 align-top py-4">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-1.5 font-bold text-neutral-900 truncate" title={order.userName || order.userEmail}>
                           <UserIcon className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
-                          <span>{order.userName || order.userEmail || `User #${order.userId}`}</span>
+                          <span className="truncate">{order.userName || order.userEmail || `User #${order.userId}`}</span>
                         </div>
                         {order.userEmail && (
-                          <p className="text-[11px] text-neutral-500">{order.userEmail}</p>
+                          <p className="text-[11px] text-neutral-500 truncate" title={order.userEmail}>{order.userEmail}</p>
                         )}
                         {order.phone && (
                           <p className="text-[11px] text-neutral-600 font-medium pt-0.5">📞 {order.phone}</p>
                         )}
                         {order.address && (
-                          <p className="text-[11px] text-neutral-500 leading-snug pt-0.5" title={order.address}>
+                          <p className="text-[11px] text-neutral-500 leading-snug pt-0.5 wrap-break-word max-w-50" title={order.address}>
                             📍 {order.address}
                           </p>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs min-w-56 align-top py-4">
-                      <div className="space-y-2">
+                    <TableCell className="text-xs max-w-70 min-w-55 align-top py-4">
+                      <div className="max-h-48 overflow-y-auto pr-1 space-y-2">
                         {order.items && order.items.length > 0 ? (
                           order.items.map((item) => (
-                            <div key={item.id} className="flex items-center gap-2.5 bg-neutral-50/70 p-1.5 rounded-md border border-neutral-100">
+                            <div key={item.id} className="flex items-center gap-2.5 bg-neutral-50/70 p-1.5 rounded-md border border-neutral-100 min-w-0">
                               {item.productImageUrl ? (
                                 <img
                                   src={item.productImageUrl}

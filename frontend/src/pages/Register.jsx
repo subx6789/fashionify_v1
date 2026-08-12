@@ -17,14 +17,34 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedName) {
+      setError('Please enter your full name.');
+      return;
+    }
+
+    if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
+      setError('Please enter a valid email address containing @ and .');
+      return;
+    }
+
+    if (trimmedPassword.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await register(name, email, password);
+      await register(trimmedName, trimmedEmail, trimmedPassword);
       navigate('/login');
     } catch (err) {
-      setError('Registration failed. Please try again.',err);
+      setError(err?.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

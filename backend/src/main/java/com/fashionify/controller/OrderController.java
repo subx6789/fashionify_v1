@@ -5,6 +5,7 @@ import com.fashionify.dto.request.OrderStatusUpdateRequest;
 import com.fashionify.dto.response.OrderResponse;
 import com.fashionify.service.OrderService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class OrderController {
 
     // 1. Create a new Order
     @PostMapping
-    public OrderResponse createOrder(@RequestBody OrderRequest request, HttpSession session) {
+    public OrderResponse createOrder(@Valid @RequestBody OrderRequest request, HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             throw new RuntimeException("Unauthorized: Please log in to place an order.");

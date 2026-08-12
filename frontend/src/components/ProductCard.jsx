@@ -1,15 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Plus } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const isOutOfStock = product?.stock === 0 || product?.stock === null;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Call CartContext addToCart(product)
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     addToCart(product);
   };
 

@@ -1,18 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import api from '../services/api';
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -32,6 +35,10 @@ const ProductDetails = () => {
   }, [id]);
 
   const handleAddToCart = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     if (product) {
       addToCart(product);
     }

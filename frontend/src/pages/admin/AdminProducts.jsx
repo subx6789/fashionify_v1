@@ -27,6 +27,7 @@ const AdminProducts = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [error, setError] = useState('');
 
   // Form fields matching ProductRequest exactly: name, description, price, imageUrl, stock
   const [formData, setFormData] = useState({
@@ -40,7 +41,6 @@ const AdminProducts = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      // TODO: Call GET /api/products
       const res = await api.get('/products');
       setProducts(res.data || []);
     } catch (err) {
@@ -57,6 +57,7 @@ const AdminProducts = () => {
   const handleOpenAddDialog = () => {
     setSelectedProductId(null);
     setFormData({ name: '', description: '', price: '', imageUrl: '', stock: '' });
+    setError('');
     setDialogOpen(true);
   };
 
@@ -69,32 +70,59 @@ const AdminProducts = () => {
       imageUrl: product.imageUrl || '',
       stock: product.stock ?? '',
     });
+    setError('');
     setDialogOpen(true);
   };
 
   const handleSaveProduct = async (e) => {
     e.preventDefault();
+    setError('');
+
+    const trimmedName = formData.name.trim();
+    const trimmedDescription = formData.description.trim();
+    const trimmedImageUrl = formData.imageUrl.trim();
+    const parsedPrice = parseFloat(formData.price);
+    const parsedStock = parseInt(formData.stock, 10);
+
+    if (!trimmedImageUrl) {
+      setError('Cover image link is required.');
+      return;
+    }
+    if (!trimmedName) {
+      setError('Product name is required.');
+      return;
+    }
+    if (!trimmedDescription) {
+      setError('Product description is required.');
+      return;
+    }
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      setError('Price must be a valid number greater than 0.');
+      return;
+    }
+    if (isNaN(parsedStock) || parsedStock < 0) {
+      setError('Stock quantity must be a non-negative integer.');
+      return;
+    }
 
     const payload = {
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price) || 0.0,
-      imageUrl: formData.imageUrl,
-      stock: parseInt(formData.stock, 10) || 0,
+      name: trimmedName,
+      description: trimmedDescription,
+      price: parsedPrice,
+      imageUrl: trimmedImageUrl,
+      stock: parsedStock,
     };
 
     try {
       if (selectedProductId) {
-        // TODO: Call PUT /api/products/{id} with payload
         await api.put(`/products/${selectedProductId}`, payload);
       } else {
-        // TODO: Call POST /api/products with payload
         await api.post('/products', payload);
       }
       setDialogOpen(false);
       fetchProducts();
     } catch (err) {
-      console.error('Failed to save product', err);
+      setError(err?.response?.data?.message || 'Failed to save product');
     }
   };
 
@@ -207,6 +235,11 @@ const AdminProducts = () => {
           </DialogHeader>
 
           <form onSubmit={handleSaveProduct} className="space-y-4">
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-xs font-medium text-red-600">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="imageUrl">Cover Image Link</Label>
               <Input
@@ -215,6 +248,7 @@ const AdminProducts = () => {
                 placeholder="https://images.unsplash.com/..."
                 value={formData.imageUrl}
                 onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                required
               />
             </div>
             <div className="space-y-2">
@@ -234,6 +268,7 @@ const AdminProducts = () => {
                 className="w-full rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-950 disabled:cursor-not-allowed disabled:opacity-50"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                required
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

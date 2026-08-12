@@ -103,7 +103,7 @@ const Cart = () => {
               </div>
               <div className="flex justify-between text-neutral-600">
                 <span>Shipping</span>
-                <span className="text-neutral-500 font-medium">Calculated at checkout</span>
+                <span className="text-green-500 font-bold">FREE</span>
               </div>
               <Separator />
               <div className="flex justify-between text-base font-bold text-neutral-900 pt-2">

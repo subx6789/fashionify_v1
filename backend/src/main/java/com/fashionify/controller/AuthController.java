@@ -5,6 +5,7 @@ import com.fashionify.dto.request.RegisterRequest;
 import com.fashionify.dto.response.UserResponse;
 import com.fashionify.service.AuthService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,23 +20,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public UserResponse register(@RequestBody RegisterRequest request) {
-        // Call AuthService.register(request) and return the registered user
+    public UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
 
     @PostMapping("/login")
-    public UserResponse login(@RequestBody LoginRequest request, HttpSession session) {
-        // 1. Call AuthService.login(request)
+    public UserResponse login(@Valid @RequestBody LoginRequest request, HttpSession session) {
         UserResponse user = authService.login(request);
-
-        // 2. Store user ID in session ("userId")
         session.setAttribute("userId", user.getId());
-
-        // 3. Store role in session ("role")
         session.setAttribute("role", user.getRole().name());
-
-        // 4. Return logged in user
         return user;
     }
 
@@ -47,13 +40,10 @@ public class AuthController {
 
     @GetMapping("/me")
     public UserResponse me(HttpSession session) {
-        // 1. Read user ID from session
         Long userId = (Long) session.getAttribute("userId");
-        // 2. Return null if no user is logged in
         if (userId == null) {
             return null;
         }
-        // 3. Find and return current logged-in user
         return authService.getUserById(userId);
     }
 }

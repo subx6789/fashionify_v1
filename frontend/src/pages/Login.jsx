@@ -16,18 +16,32 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!trimmedPassword) {
+      setError('Please enter your password.');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const user = await login(email, password);
+      const user = await login(trimmedEmail, trimmedPassword);
       if (user?.role === 'ADMIN') {
         navigate('/admin');
       } else {
         navigate('/');
       }
     } catch (err) {
-      setError('Invalid email or password',err);
+      setError(err?.response?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }

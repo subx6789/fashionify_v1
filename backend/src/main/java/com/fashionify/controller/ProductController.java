@@ -4,6 +4,7 @@ import com.fashionify.dto.request.ProductRequest;
 import com.fashionify.dto.response.ProductResponse;
 import com.fashionify.service.ProductService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,14 +34,14 @@ public class ProductController {
 
     // Admin Only: Add new product
     @PostMapping
-    public ProductResponse addProduct(@RequestBody ProductRequest request, HttpSession session) {
+    public ProductResponse addProduct(@Valid @RequestBody ProductRequest request, HttpSession session) {
         verifyAdmin(session);
         return productService.addProduct(request);
     }
 
     // Admin Only: Update product
     @PutMapping("/{id}")
-    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody ProductRequest request,
+    public ProductResponse updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request,
             HttpSession session) {
         verifyAdmin(session);
         return productService.updateProduct(id, request);

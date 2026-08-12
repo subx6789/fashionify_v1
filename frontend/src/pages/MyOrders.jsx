@@ -108,34 +108,38 @@ const MyOrders = () => {
 
             <CardContent className="p-4 sm:p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-neutral-600 bg-neutral-50 p-3 rounded-md">
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-neutral-400 mt-0.5" />
-                  <span><strong>Address:</strong> {order.address}</span>
+                <div className="flex items-start gap-2 min-w-0">
+                  <MapPin className="h-4 w-4 text-neutral-400 mt-0.5 shrink-0" />
+                  <span className="wrap-break-word min-w-0 flex-1">
+                    <strong>Address:</strong> {order.address}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-neutral-400" />
+                <div className="flex items-center gap-2 shrink-0">
+                  <Phone className="h-4 w-4 text-neutral-400 shrink-0" />
                   <span><strong>Phone:</strong> {order.phone}</span>
                 </div>
               </div>
 
-              {/* Order Items */}
-              <div className="divide-y divide-neutral-100">
+              {/* Order Items with Max Height Scroll for Multi-Item Orders */}
+              <div className="max-h-64 overflow-y-auto pr-2 divide-y divide-neutral-100">
                 {order.items?.map((item) => (
-                  <div key={item.id} className="py-3 flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded bg-neutral-100 overflow-hidden shrink-0">
+                  <div key={item.id} className="py-3 flex items-center justify-between text-sm gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-12 w-12 rounded bg-neutral-100 overflow-hidden shrink-0 border border-neutral-200">
                         {item.productImageUrl ? (
                           <img src={item.productImageUrl} alt={item.productName} className="h-full w-full object-cover" />
                         ) : (
                           <div className="flex h-full items-center justify-center text-[10px] text-neutral-400">No img</div>
                         )}
                       </div>
-                      <div>
-                        <p className="font-medium text-neutral-900">{item.productName || `Product #${item.productId}`}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-neutral-900 truncate" title={item.productName}>
+                          {item.productName || `Product #${item.productId}`}
+                        </p>
                         <p className="text-xs text-neutral-500">Qty: {item.quantity} × ₹{item.price?.toFixed(2)}</p>
                       </div>
                     </div>
-                    <span className="font-semibold text-neutral-900">
+                    <span className="font-semibold text-neutral-900 shrink-0">
                       ₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}
                     </span>
                   </div>
