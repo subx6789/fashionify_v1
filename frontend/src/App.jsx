@@ -47,8 +47,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route
+              path="/login"
+              element={
+                <ProtectedRoute guestOnly={true}>
+                  <Login />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <ProtectedRoute guestOnly={true}>
+                  <Register />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/product/:id"
               element={

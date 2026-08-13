@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const ProtectedRoute = ({ children, adminOnly, requireUser }) => {
+const ProtectedRoute = ({ children, adminOnly, requireUser, guestOnly }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -14,6 +14,17 @@ const ProtectedRoute = ({ children, adminOnly, requireUser }) => {
         </div>
       </div>
     );
+  }
+
+  // Handle guest-only routes (/login, /register) for authenticated users
+  if (guestOnly) {
+    if (user) {
+      if (user.role === 'ADMIN') {
+        return <Navigate to="/admin" replace />;
+      }
+      return <Navigate to="/" replace />;
+    }
+    return children;
   }
 
   // Handle unauthenticated guests

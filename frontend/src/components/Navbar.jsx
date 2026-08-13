@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, User as UserIcon, LogOut, Menu, X, Package, Layers } from 'lucide-react';
+import { ShoppingBag, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 const Navbar = () => {
@@ -19,7 +19,6 @@ const Navbar = () => {
   }
 
   const handleLogout = async () => {
-    // TODO: Call logout from AuthContext and navigate to /login
     await logout();
     navigate('/login');
   };
@@ -63,17 +62,6 @@ const Navbar = () => {
             <NavLink to="/my-orders" className={linkClass}>
               MY ORDERS
             </NavLink>
-          )}
-
-          {isAdmin && (
-            <>
-              <NavLink to="/admin/products" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#111111] hover:text-neutral-500">
-                <Package className="h-4 w-4" /> ADMIN PRODUCTS
-              </NavLink>
-              <NavLink to="/admin/orders" className="flex items-center gap-1.5 text-[14px] font-semibold text-[#111111] hover:text-neutral-500">
-                <Layers className="h-4 w-4" /> ADMIN ORDERS
-              </NavLink>
-            </>
           )}
         </nav>
 
@@ -164,24 +152,6 @@ const Navbar = () => {
               >
                 My Orders
               </NavLink>
-            )}
-            {isAdmin && (
-              <>
-                <NavLink
-                  to="/admin/products"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={mobileLinkClass}
-                >
-                  Admin Products
-                </NavLink>
-                <NavLink
-                  to="/admin/orders"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={mobileLinkClass}
-                >
-                  Admin Orders
-                </NavLink>
-              </>
             )}
 
             <div className="pt-4 border-t border-neutral-100 flex flex-col space-y-3">

@@ -98,7 +98,7 @@ export const CartProvider = ({ children }) => {
     const newQty = currentQty + 1;
 
     try {
-      const res = await api.put(`/cart/items/${productId}`, { quantity: newQty });
+      const res = await api.put(`/cart/items/${productId}`, { productId, quantity: newQty });
       if (res.data && res.data.items) {
         setCart(res.data.items);
       }
@@ -134,7 +134,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const res = await api.put(`/cart/items/${productId}`, { quantity: newQty });
+      const res = await api.put(`/cart/items/${productId}`, { productId, quantity: newQty });
       if (res.data && res.data.items) {
         setCart(res.data.items);
       }

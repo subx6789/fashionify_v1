@@ -52,7 +52,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    // 1. Fetch user's cart
+    // Fetch user's cart
     @Override
     @Transactional(readOnly = true)
     public CartResponse getCart(Long userId) {
@@ -64,7 +64,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    // 2. Add item to cart
+    // Add item to cart
     @Override
     public CartResponse addItem(Long userId, CartItemRequest request) {
         try {
@@ -99,7 +99,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    // 3. Update item quantity in cart
+    // Update item quantity in cart
     @Override
     public CartResponse updateItemQuantity(Long userId, Long productId, CartItemRequest request) {
         try {
@@ -132,7 +132,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    // 4. Remove single item from cart
+    // Remove single item from cart
     @Override
     public CartResponse removeItem(Long userId, Long productId) {
         try {
@@ -146,7 +146,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    // 5. Clear all items from cart
+    // Clear all items from cart
     @Override
     public CartResponse clearCart(Long userId) {
         try {

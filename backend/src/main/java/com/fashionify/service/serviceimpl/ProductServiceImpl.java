@@ -31,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
         this.orderItemRepository = orderItemRepository;
     }
 
-    // 1. Get All Products
+    // Get All Products
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    // 2. Get Product By ID
+    // Get Product By ID
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    // 3. Add New Product
+    // Add New Product
     @Override
     public ProductResponse addProduct(ProductRequest request) {
         try {
@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    // 4. Update Existing Product
+    // Update Existing Product
     @Override
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         try {
@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    // 5. Delete Product
+    // Delete Product
     @Override
     public void deleteProduct(Long id) {
         try {

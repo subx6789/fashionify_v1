@@ -8,7 +8,7 @@ public class CartItemRequest {
     @NotNull(message = "Product ID is required")
     private Long productId;
 
-    @Min(value = 1, message = "Quantity must be at least 1")
+    @Min(value = 0, message = "Quantity must be non-negative")
     private Integer quantity;
 
     public CartItemRequest() {

@@ -18,48 +18,52 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    private Long getUserIdOrThrow(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
+    private Long verifyUserOrThrow(HttpSession session) {
+        if (session == null) {
             throw new RuntimeException("Unauthorized: Please log in to manage your cart.");
+        }
+        Long userId = (Long) session.getAttribute("userId");
+        String role = (String) session.getAttribute("role");
+        if (userId == null || role == null || !"USER".equalsIgnoreCase(role)) {
+            throw new RuntimeException("Unauthorized: Customer (USER) access required.");
         }
         return userId;
     }
 
-    // 1. GET /api/cart
+    // GET /api/cart
     @GetMapping
     public CartResponse getCart(HttpSession session) {
-        Long userId = getUserIdOrThrow(session);
+        Long userId = verifyUserOrThrow(session);
         return cartService.getCart(userId);
     }
 
-    // 2. POST /api/cart/items
+    // POST /api/cart/items
     @PostMapping("/items")
     public CartResponse addItemToCart(@Valid @RequestBody CartItemRequest request, HttpSession session) {
-        Long userId = getUserIdOrThrow(session);
+        Long userId = verifyUserOrThrow(session);
         return cartService.addItem(userId, request);
     }
 
-    // 3. PUT /api/cart/items/{productId}
+    // PUT /api/cart/items/{productId}
     @PutMapping("/items/{productId}")
     public CartResponse updateCartItemQuantity(@PathVariable Long productId,
                                                 @Valid @RequestBody CartItemRequest request,
                                                 HttpSession session) {
-        Long userId = getUserIdOrThrow(session);
+        Long userId = verifyUserOrThrow(session);
         return cartService.updateItemQuantity(userId, productId, request);
     }
 
-    // 4. DELETE /api/cart/items/{productId}
+    // DELETE /api/cart/items/{productId}
     @DeleteMapping("/items/{productId}")
     public CartResponse removeCartItem(@PathVariable Long productId, HttpSession session) {
-        Long userId = getUserIdOrThrow(session);
+        Long userId = verifyUserOrThrow(session);
         return cartService.removeItem(userId, productId);
     }
 
-    // 5. DELETE /api/cart
+    // DELETE /api/cart
     @DeleteMapping
     public CartResponse clearCart(HttpSession session) {
-        Long userId = getUserIdOrThrow(session);
+        Long userId = verifyUserOrThrow(session);
         return cartService.clearCart(userId);
     }
 }

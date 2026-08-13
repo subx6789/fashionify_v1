@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Check current session status on initial load
+  // Check current session status on initial load
   const checkAuth = async () => {
     setLoading(true);
     try {
@@ -24,20 +24,20 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // 2. Login function
+  // Login user session
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
     setUser(res.data);
     return res.data;
   };
 
-  // 3. Register function
+  // Register new user account
   const register = async (name, email, password) => {
     const res = await api.post('/auth/register', { name, email, password });
     return res.data;
   };
 
-  // 4. Logout function
+  // Logout active user session
   const logout = async () => {
     try {
       await api.post('/auth/logout');

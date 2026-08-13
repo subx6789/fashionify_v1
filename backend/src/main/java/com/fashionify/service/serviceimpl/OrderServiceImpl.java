@@ -39,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
         this.productRepository = productRepository;
     }
 
-    // 1. Create a new Order
+    // Create a new Order
     @Override
     public OrderResponse createOrder(Long userId, OrderRequest request) {
         try {
@@ -104,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    // 2. Get User's Orders (Newest First)
+    // Get User's Orders (Newest First)
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders(Long userId) {
@@ -122,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    // 3. Get All Orders (Admin - Newest First)
+    // Get All Orders (Admin - Newest First)
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
@@ -140,7 +140,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    // 4. Update Order Status (Admin)
+    // Update Order Status (Admin)
     @Override
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
         try {

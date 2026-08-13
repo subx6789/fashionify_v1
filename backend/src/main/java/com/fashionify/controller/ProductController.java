@@ -57,8 +57,12 @@ public class ProductController {
 
     // Helper method to verify Admin role from session
     private void verifyAdmin(HttpSession session) {
+        if (session == null) {
+            throw new RuntimeException("Unauthorized: Admin access required.");
+        }
+        Long userId = (Long) session.getAttribute("userId");
         String role = (String) session.getAttribute("role");
-        if (role == null || !role.equals("ADMIN")) {
+        if (userId == null || role == null || !"ADMIN".equalsIgnoreCase(role)) {
             throw new RuntimeException("Unauthorized: Admin access required.");
         }
     }
